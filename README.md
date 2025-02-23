@@ -1,7 +1,7 @@
 # E-commerce Backend System
 
 ## Overview
-A robust e-commerce backend system built with Spring Boot, featuring user management, product catalog, shopping cart, and order processing functionalities.
+An e-commerce backend system built with Spring Boot, featuring user management, product catalog, shopping cart, and order processing functionalities.
 
 ## Technology Stack
 
