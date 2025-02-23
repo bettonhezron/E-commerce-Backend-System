@@ -54,6 +54,8 @@ An e-commerce backend system built with Spring Boot, featuring user management, 
  ┃ ┗ 📜 application.properties
  ┗ 📜 pom.xml
 
+```
+
 
 ## Database Schema
 
