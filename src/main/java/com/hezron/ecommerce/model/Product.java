@@ -3,6 +3,7 @@ package com.hezron.ecommerce.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -23,7 +24,7 @@ public class Product {
     private String description;
 
     @Column(nullable = false)
-    private  double price;
+    private BigDecimal price;
 
     @Column(nullable = false)
     private Integer stockQuantity;
