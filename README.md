@@ -1,5 +1,6 @@
 # E-commerce Backend System
 
+## Overview
 A robust e-commerce backend system built with Spring Boot, featuring user management, product catalog, shopping cart, and order processing functionalities.
 
 ## Technology Stack
@@ -15,16 +16,44 @@ A robust e-commerce backend system built with Spring Boot, featuring user manage
 ## Project Structure
 
 ```
-com.hezron.ecommerce
-├── entity          # Domain models
-├── repository      # Data access layer
-├── service         # Business logic
-├── controller      # REST endpoints
-├── config          # Configuration classes
-├── security        # Security configurations
-├── exception       # Custom exceptions
-└── dto             # Data transfer objects
-```
+📦 ecommerce
+ ┣ 📂 src/main/java/com/hezron/ecommerce
+ ┃ ┣ 📂 config
+ ┃ ┃ ┣ 📜 SecurityConfig.java
+ ┃ ┃ ┗ 📜 SwaggerConfig.java
+ ┃ ┣ 📂 controller
+ ┃ ┃ ┣ 📜 ProductController.java
+ ┃ ┃ ┣ 📜 OrderController.java
+ ┃ ┃ ┣ 📜 CartController.java
+ ┃ ┃ ┗ 📜 UserController.java
+ ┃ ┣ 📂 model
+ ┃ ┃ ┣ 📜 Product.java
+ ┃ ┃ ┣ 📜 Category.java
+ ┃ ┃ ┣ 📜 User.java
+ ┃ ┃ ┣ 📜 Order.java
+ ┃ ┃ ┣ 📜 OrderItem.java
+ ┃ ┃ ┣ 📜 Cart.java
+ ┃ ┃ ┗ 📜 CartItem.java
+ ┃ ┣ 📂 repository
+ ┃ ┃ ┣ 📜 ProductRepository.java
+ ┃ ┃ ┣ 📜 OrderRepository.java
+ ┃ ┃ ┗ 📜 UserRepository.java
+ ┃ ┣ 📂 service
+ ┃ ┃ ┣ 📜 ProductService.java
+ ┃ ┃ ┣ 📜 OrderService.java
+ ┃ ┃ ┗ 📜 UserService.java
+ ┃ ┣ 📂 dto
+ ┃ ┃ ┣ 📜 ProductDTO.java
+ ┃ ┃ ┣ 📜 OrderDTO.java
+ ┃ ┃ ┗ 📜 UserDTO.java
+ ┃ ┣ 📂 exception
+ ┃ ┃ ┣ 📜 ResourceNotFoundException.java
+ ┃ ┃ ┗ 📜 GlobalExceptionHandler.java
+ ┃ ┗ 📜 EcommerceApplication.java
+ ┣ 📂 src/main/resources
+ ┃ ┗ 📜 application.properties
+ ┗ 📜 pom.xml
+
 
 ## Database Schema
 
@@ -63,13 +92,13 @@ Create a PostgreSQL database:
 CREATE DATABASE ecommerce;
 ```
 
-Update `application.properties` with your database credentials:
+Update `.env` with your database credentials:
 
-```properties
-server.port = 8000
-spring.datasource.url=jdbc:postgresql://localhost:5432/ecommerce
-spring.datasource.username=your_username
-spring.datasource.password=your_password
+```env
+DB_URL=jdbc:postgresql://localhost:5432/dbname
+DB_USER=username
+DB_PASS=password
+```
 ```
 
 ### Running the Application
@@ -78,6 +107,7 @@ spring.datasource.password=your_password
 
    ```sh
    git clone `https://github.com/bettonhezron/E-commerce-Backend-System.git`
+   
    cd ecommerce
    ```
 
