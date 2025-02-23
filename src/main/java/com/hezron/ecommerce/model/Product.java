@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Data
 @Entity
@@ -31,7 +32,9 @@ public class Product {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    private String imageUrl;
+    @ElementCollection
+    @CollectionTable(name = "product_images")
+    private Set<String> imageUrls;
 
     @Column(nullable = false)
     private Boolean active = true;
