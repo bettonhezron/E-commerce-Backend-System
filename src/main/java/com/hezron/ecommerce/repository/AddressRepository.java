@@ -1,4 +1,4 @@
-package com.hezron.ecommerce.resitory;
+package com.hezron.ecommerce.repository;
 
 import com.hezron.ecommerce.model.Address;
 import org.springframework.data.jpa.repository.JpaRepository;
