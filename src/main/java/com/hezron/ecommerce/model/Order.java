@@ -7,6 +7,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -20,23 +21,28 @@ public class Order {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
     private User user;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     @JsonIgnore  // Prevents infinite recursion
-    private Set<OrderItem> orderItems;
+    private Set<OrderItem> orderItems = new HashSet<>();;
 
     @Column(nullable = false)
     private BigDecimal totalAmount;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private OrderStatus status;
 
     @ManyToOne
     @JoinColumn(name = "shipping_address_id")
     private Address shippingAddress;
 
+    @Column(nullable = false)
     private String paymentMethod;
+
+    @Column(unique = true)
     private String trackingNumber;
 
     @Column(nullable = false, updatable = false)
