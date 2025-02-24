@@ -43,6 +43,10 @@ public class UserService {
         return convertDTO(user);
     }
 
+    //Login (Authenticate User)
+    @Transactional(readOnly = true)
+    public UserDTO authenticateUser(Login)
+
 
     private UserDTO convertDTO(User user) {
         UserDTO dto = new UserDTO();
