@@ -71,14 +71,15 @@ public class UserServiceImpl implements UserService {
         return convertDTO(user);
     }
 //Converts User entity to UserDTO so to return only essential details
-    private UserDTO convertDTO(User user) {
-        UserDTO dto = new UserDTO();
-        dto.setId(user.getId());
-        dto.setEmail(user.getEmail());
-        dto.setFirstName(user.getFirstName());
-        dto.setLastName(user.getLastName());
-        dto.setPhoneNumber(user.getPhoneNumber());
-        return dto;
-    }
+private UserDTO convertDTO(User user) {
+    UserDTO dto = new UserDTO();
+    dto.setId(user.getId());
+    dto.setEmail(user.getEmail());
+    dto.setFirstName(user.getFirstName());
+    dto.setLastName(user.getLastName());
+    dto.setPhoneNumber(user.getPhoneNumber());
+    dto.setRole(user.getRole());
+    return dto;
+}
 
 }

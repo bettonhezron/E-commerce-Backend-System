@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.security.Key;
+import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,26 +16,21 @@ import java.util.function.Function;
 
 @Service
 public class JwtService {
-    @Value("${jwt.secret-key}")
-    private String secretKey;
 
-    @Value("${jwt.expiration}")
-    private long jwtExpiration;
+    @Value("${jwt.secret}") // Load secret key from application.properties
+    private String secretKey;
 
     public String generateToken(UserDetails userDetails) {
         return generateToken(new HashMap<>(), userDetails);
     }
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-        return Jwts
-                .builder()
-                .claims()
-                .add(extraClaims)
-                .subject(userDetails.getUsername())  // This will be the email
+        return Jwts.builder()
+                .claims(extraClaims)
+                .subject(userDetails.getUsername())  // Use email as subject
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
-                .and()
-                .signWith(getKey())
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 30)) // 30 hours
+                .signWith(getSigningKey()) // Securely sign the token
                 .compact();
     }
 
@@ -62,15 +57,14 @@ public class JwtService {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts
-                .parser()
-                .setSigningKey(getKey())
+        return Jwts.parser()
+                .verifyWith(getSigningKey())
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
-    private Key getKey() {
+    private SecretKey getSigningKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
