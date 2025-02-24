@@ -7,7 +7,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    //Handle Existing user error
+
+    //Handle email already exists error
     @ExceptionHandler(EmailAlreadyExistsException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public  String handleEmailAlreadyExistsException(EmailAlreadyExistsException ex){
@@ -20,5 +21,16 @@ public class GlobalExceptionHandler {
     public String handleResourceNotFoundException(ResourceNotFoundException ex){
         return ex.getMessage();
     }
+
+    //Handle invalid login credentials
+    @ExceptionHandler(InvalidCredentialsException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public String handleInvalidCredentialsException(InvalidCredentialsException ex){
+        return  ex.getMessage();
+    }
+
+
+
+
 
 }

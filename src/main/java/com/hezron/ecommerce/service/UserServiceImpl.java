@@ -41,6 +41,7 @@ public class UserServiceImpl implements UserService {
 
     }
 
+
     @Override
     @Transactional(readOnly = true)
     public UserDTO getUserById(Long id) {
@@ -49,6 +50,7 @@ public class UserServiceImpl implements UserService {
         return convertDTO(user);
     }
 
+    //Login User
     @Override
     @Transactional(readOnly = true)
     public UserDTO authenticateUser(LoginDTO loginDTO) {
@@ -68,7 +70,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
         return convertDTO(user);
     }
-
+//Converts User entity to UserDTO so to return only essential details
     private UserDTO convertDTO(User user) {
         UserDTO dto = new UserDTO();
         dto.setId(user.getId());
