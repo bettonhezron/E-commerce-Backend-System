@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-public class UserRegistration {
+public class UserRegistrationDTO {
     @Email(message = "Invalid email format")
     private String email;
 
