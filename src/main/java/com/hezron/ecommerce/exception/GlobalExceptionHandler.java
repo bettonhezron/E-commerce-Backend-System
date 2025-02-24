@@ -29,8 +29,12 @@ public class GlobalExceptionHandler {
         return  ex.getMessage();
     }
 
-
-
+    //
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public String handleGlobalException(Exception ex){
+        return "An unexpected error occurred: " + ex.getMessage();
+    }
 
 
 }
