@@ -10,10 +10,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 		info = @Info(
 				title = "E-Commerce API",
 				version = "1.0",
-				description = "API for managing an e-commerce platform, including user authentication, product catalog, shopping cart, and order processing."
+				description = "Spring Boot E-Commerce REST API Documentation"
 		)
 )
-
 public class EcommerceApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(EcommerceApplication.class, args);
