@@ -59,6 +59,12 @@ public class ProductService {
         productRepository.save(product);
     }
 
+    //Search product
+        public List<ProductDTO> getProductsByCategory(Long categoryId){
+        return productRepository.findByActiveTrueAndActiveTrue(categoryId)
+                .s
+        }
+
     private void updateProductFromDTO(Product product, ProductDTO dto) {
         product.setName(dto.getName());
         product.setDescription(dto.getDescription());
