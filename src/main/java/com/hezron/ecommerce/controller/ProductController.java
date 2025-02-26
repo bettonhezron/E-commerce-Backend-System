@@ -68,4 +68,27 @@ public class ProductController {
         // For now, it returns an empty list
         return ResponseEntity.ok(List.of());
     }
+
+    // For user-facing endpoints (in ProductController)
+    @GetMapping("/search/advanced")
+    public ResponseEntity<List<ProductDTO>> advancedSearch(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) Integer minStock) {
+        List<ProductDTO> products = productService.advancedSearch(
+                name, categoryId, minPrice, maxPrice, minStock);
+        return ResponseEntity.ok(products);
+    }
+@GetMapping("/new-arrivals")
+    public ResponseEntity<List<ProductDTO>> geNewArrivals(){
+        List<ProductDTO> products = productService.getNewestProducts();
+        return  ResponseEntity.ok(products);
 }
+
+
+
+}
+
+

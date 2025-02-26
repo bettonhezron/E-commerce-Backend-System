@@ -19,6 +19,10 @@ public class Category {
 
     private String description;
 
+    @Column(nullable = false)
+    private Boolean active = true;
+
+
     @ManyToOne
     @JoinColumn(name = "parent_id")
     private Category parent;
