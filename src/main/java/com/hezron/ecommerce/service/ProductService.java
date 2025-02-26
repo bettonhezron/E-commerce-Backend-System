@@ -62,7 +62,7 @@ public class ProductService {
     //Search product
         public List<ProductDTO> getProductsByCategory(Long categoryId){
         return productRepository.findByActiveTrueAndActiveTrue(categoryId)
-                .s
+                .stre
         }
 
     private void updateProductFromDTO(Product product, ProductDTO dto) {
