@@ -7,6 +7,7 @@ import com.hezron.ecommerce.repository.CategoryRepository;
 import com.hezron.ecommerce.repository.ProductRepository;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,6 +71,23 @@ public class ProductService {
     }
 
     //Advanced search for admin dashboard - include inactive products
+    public List<ProductDTO> adminSearch(String name, Long categoryId, Double minPrice, Double maxPrice, Boolean active){
+        List<Product> products = productRepository.adminSearch(
+                name, categoryId, minPrice, maxPrice, active);
+        return products.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    //Get products with low stock(for inventory alerts)
+    public List<ProductDTO> getLowStocksProducts(Integer threshold){
+        List<Product> products = productRepository.findByStockQuantityLessThanAndActiveTrue(threshold);
+        return products.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    //
 
 
 
