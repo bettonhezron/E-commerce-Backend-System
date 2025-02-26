@@ -6,6 +6,7 @@ import com.hezron.ecommerce.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -93,6 +94,11 @@ public class ProductController {
         return ResponseEntity.ok(products);
 }
 
+@GetMapping("/budget")
+    public ResponseEntity<List<ProductDTO>> getBudgetProducts(){
+        List<ProductDTO> products = productService.getBudgetProducts();
+        return ResponseEntity.ok(products);
+}
 
 }
 
