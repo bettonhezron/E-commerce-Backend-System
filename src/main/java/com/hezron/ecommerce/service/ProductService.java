@@ -87,7 +87,13 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    //
+    //Get newest products (for "New arrivals" section")
+    public List<ProductDTO> getNewestProducts(){
+        List<Product> products = productRepository.findTop10ByActiveTrueOrderByIdDesc();
+        return products.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
 
 
 
