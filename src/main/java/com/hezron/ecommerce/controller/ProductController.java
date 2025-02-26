@@ -100,6 +100,22 @@ public class ProductController {
         return ResponseEntity.ok(products);
 }
 
+//For admin-facing endpoints (in AdminProductController)
+
+    @GetMapping("/search")
+    public ResponseEntity<List<ProductDTO>> adminSearch(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) Boolean active
+    ) {
+        List<ProductDTO> products = productService.adminSearch(
+                name, categoryId, minPrice, maxPrice, active);
+        return ResponseEntity.ok(products);
+
+    }
+
 }
 
 
