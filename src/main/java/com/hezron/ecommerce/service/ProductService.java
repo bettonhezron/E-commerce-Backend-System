@@ -95,6 +95,16 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
+    //Get most expensive products (for "Premium Collections" section)
+    public List<ProductDTO> getPremiumProducts(){
+        List<Product> products = productRepository.findTop10ByActiveTrueOrderByIdDesc();
+        return products
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+
+    }
+
 
 
     private void updateProductFromDTO(Product product, ProductDTO dto) {
