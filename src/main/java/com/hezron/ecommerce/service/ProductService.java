@@ -105,6 +105,14 @@ public class ProductService {
 
     }
 
+    //Get Budget-friendly products (for "Budget Deals" section)
+    public List<ProductDTO> getBudgetProducts(){
+        List<Product> products = productRepository.findTop5ByActiveTrueOrderByPriceAsc();
+        return products.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
 
 
     private void updateProductFromDTO(Product product, ProductDTO dto) {
