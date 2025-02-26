@@ -69,6 +69,9 @@ public class ProductService {
                     .collect(Collectors.toList());
     }
 
+    //Advanced search for admin dashboard - include inactive products
+
+
 
     private void updateProductFromDTO(Product product, ProductDTO dto) {
         product.setName(dto.getName());

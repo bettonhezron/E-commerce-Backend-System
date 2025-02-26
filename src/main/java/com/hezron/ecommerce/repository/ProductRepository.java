@@ -14,18 +14,18 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     //Basic filtering methods
     List<Product>  findByActiveTrue();
     List<Product> findByActiveFalse();
-    List<Product> findByCategoryIdAndActiveTrue();
+    List<Product> findByCategoryIdAndActiveTrue(Long product);
 
     //Simple search methods
-    List<Product> findNameContainingIgnoreCaseAndActiveTrue(String name);
-    List<Product> findPriceBetweenAndActiveTrue(Double minPrice, Double maxPrice);
-    List<Product> findPriceGreaterThanEqualAndActiveTrue(Double minPrice);
+    List<Product> findByNameContainingIgnoreCaseAndActiveTrue(String name);
+    List<Product> findByPriceBetweenAndActiveTrue(Double minPrice, Double maxPrice);
+    List<Product> findByPriceGreaterThanEqualAndActiveTrue(Double minPrice);
     List<Product> findByPriceLessThanEqualAndActiveTrue(Double maxPrice);
 
     //Combined Search methods
     List<Product> findByNameContainingIgnoreCaseAndPriceBetweenAndActiveTrue(String name, Double minPrice, Double maxPrice);
     List<Product> findByNameContainingIgnoreCaseAndPriceGreaterThanEqualAndActiveTrue(String name, Double minPrice);
-    List<Product> findByNameContainingIgnoreCaseAndLessThanEqualAndActiveTrue(String name, Double maxPrice);
+    List<Product> findByNameContainingIgnoreCaseAndPriceLessThanEqualAndActiveTrue(String name, Double maxPrice);
 
     //Stock Filtering
     List<Product> findByStockQuantityLessThanAndActiveTrue(Integer threshold);
@@ -65,11 +65,11 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             @Param("active") Boolean active);
 
     //Newest products (for featured section or "new arrivals")
-    List<Product> findByTop10ActiveTrueOrderByIdDesc();
+    List<Product> findTop10ByActiveTrueOrderByIdDesc();
 
     //Most/least expensive products
-    List<Product> findByTop5ActiveTrueOrderByPriceDesc();
-    List<Product> findByTop5ActiveTrueOderByPriceAsc();
+    List<Product> findTop5ByActiveTrueOrderByPriceDesc();
+    List<Product>  findTop5ByActiveTrueOrderByPriceAsc();
 
 
 
