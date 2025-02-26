@@ -5,6 +5,7 @@ import com.hezron.ecommerce.exception.ResourceNotFoundException;
 import com.hezron.ecommerce.model.Product;
 import com.hezron.ecommerce.repository.CategoryRepository;
 import com.hezron.ecommerce.repository.ProductRepository;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,11 +60,15 @@ public class ProductService {
         productRepository.save(product);
     }
 
-    //Search product
-        public List<ProductDTO> getProductsByCategory(Long categoryId){
-        return productRepository.findByActiveTrueAndActiveTrue(categoryId)
-                .stre
-        }
+    //Advanced search for product - User facing
+    public List<ProductDTO> advancedSearch(String name, Long categoryId, Double minPrice, Double maxPrice, Integer minStock){
+            List<Product> products = productRepository.advancedSearch(
+                    name, categoryId, minPrice, maxPrice, minStock);
+            return products.stream()
+                    .map(this::convertToDTO)
+                    .collect(Collectors.toList());
+    }
+
 
     private void updateProductFromDTO(Product product, ProductDTO dto) {
         product.setName(dto.getName());
