@@ -87,6 +87,11 @@ public class ProductController {
         return  ResponseEntity.ok(products);
 }
 
+@GetMapping("/premium")
+    public ResponseEntity<List<ProductDTO>> getPremiumProducts(){
+        List<ProductDTO> products = productService.getPremiumProducts();
+        return ResponseEntity.ok(products);
+}
 
 
 }
