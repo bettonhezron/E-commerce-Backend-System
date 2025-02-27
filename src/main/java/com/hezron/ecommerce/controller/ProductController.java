@@ -6,13 +6,12 @@ import com.hezron.ecommerce.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/auth/products")
+@RequestMapping("/api/products")
 @RequiredArgsConstructor
 public class ProductController {
     
@@ -102,7 +101,7 @@ public class ProductController {
 
 //For admin-facing endpoints (in AdminProductController)
 
-    @GetMapping("/search")
+    @GetMapping("/search-admin")
     public ResponseEntity<List<ProductDTO>> adminSearch(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) Long categoryId,
@@ -110,10 +109,18 @@ public class ProductController {
             @RequestParam(required = false) Double maxPrice,
             @RequestParam(required = false) Boolean active
     ) {
-        List<ProductDTO> products = productService.adminSearch(
-                name, categoryId, minPrice, maxPrice, active);
+        List<ProductDTO> products = productService.adminSearch(name, categoryId, minPrice, maxPrice, active);
         return ResponseEntity.ok(products);
 
+    }
+
+    //low stock
+
+    @GetMapping("/low-stock")
+    public ResponseEntity<List<ProductDTO>> getLowStockProducts(
+            @RequestParam(defaultValue = "10") Integer threshold){
+        List<ProductDTO> products = productService.getLowStocksProducts(threshold);
+        return ResponseEntity.ok(products);
     }
 
 }
