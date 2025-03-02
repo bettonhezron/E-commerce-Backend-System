@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
         user.setPhoneNumber(registrationDTO.getPhoneNumber());
 
         // Set role based on DTO if provided, otherwise default to CUSTOMER
-        user.setRole(registrationDTO.getRole() != null ? registrationDTO.getRole() : Role.CUSTOMER);
+        user.setRole(registrationDTO.getRole() != null ? registrationDTO.getRole() : Role.ROLE_CUSTOMER);
 
         User savedUser = userRepository.save(user);
         return convertDTO(savedUser);
@@ -52,7 +52,7 @@ public class UserServiceImpl implements UserService {
         }
 
         // Set role to ADMIN explicitly
-        registrationDTO.setRole(Role.ADMIN);
+        registrationDTO.setRole(Role.ROLE_ADMIN);
         return registerUser(registrationDTO);
     }
 
@@ -60,14 +60,14 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void createInitialAdminIfNeeded(String email, String password, String firstName, String lastName, String phoneNumber) {
-        if (!userRepository.existsByRole(Role.ADMIN)) {
+        if (!userRepository.existsByRole(Role.ROLE_ADMIN)) {
             User adminUser = new User();
             adminUser.setEmail(email);
             adminUser.setPassword(passwordEncoder.encode(password));
             adminUser.setFirstName(firstName);
             adminUser.setLastName(lastName);
             adminUser.setPhoneNumber(phoneNumber);
-            adminUser.setRole(Role.ADMIN);
+            adminUser.setRole(Role.ROLE_ADMIN);
 
             userRepository.save(adminUser);
         }

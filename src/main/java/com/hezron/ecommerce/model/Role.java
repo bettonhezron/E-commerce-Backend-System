@@ -1,6 +1,6 @@
 package com.hezron.ecommerce.model;
 
 public enum Role {
-    CUSTOMER,
-    ADMIN
+   ROLE_CUSTOMER,
+    ROLE_ADMIN
 }

@@ -20,8 +20,11 @@ import java.util.stream.Collectors;
 @Service
 public class JwtService {
 
-    @Value("${jwt.secret}") // Load secret key from application.properties
+    @Value("${jwt.secret}")
     private String secretKey;
+
+    @Value("${jwt.expiration}")
+    private long jwtExpiration;
 
     public String generateToken(UserDetails userDetails) {
         return generateToken(new HashMap<>(), userDetails);
@@ -40,7 +43,7 @@ public class JwtService {
                 .claims(extraClaims)
                 .subject(userDetails.getUsername())  // Use email as subject
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 30)) // 30 hours
+                .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
                 .signWith(getSigningKey()) // Securely sign the token
                 .compact();
     }
