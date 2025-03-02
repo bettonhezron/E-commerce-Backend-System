@@ -36,6 +36,9 @@ public class JwtService {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
+        // Log the roles being added to the token
+        System.out.println("Adding roles to JWT: " + roles);
+
         // Add roles to the claims
         extraClaims.put("roles", roles);
 
@@ -54,7 +57,9 @@ public class JwtService {
 
     public List<String> extractRoles(String token) {
         Claims claims = extractAllClaims(token);
-        return claims.get("roles", List.class);
+        List<String> roles = claims.get("roles", List.class);
+        System.out.println("Extracted roles from JWT: " + roles);
+        return roles;
     }
 
     public boolean validateToken(String token, UserDetails userDetails) {

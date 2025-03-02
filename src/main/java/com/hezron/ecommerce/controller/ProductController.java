@@ -1,5 +1,6 @@
 package com.hezron.ecommerce.controller;
 
+/*
 
 import com.hezron.ecommerce.dto.ProductDTO;
 import com.hezron.ecommerce.service.ProductService;
@@ -125,4 +126,4 @@ public class ProductController {
 
 }
 
-
+*/

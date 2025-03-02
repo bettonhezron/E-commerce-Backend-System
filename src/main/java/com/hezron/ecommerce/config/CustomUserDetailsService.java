@@ -1,6 +1,5 @@
 package com.hezron.ecommerce.config;
 
-
 import com.hezron.ecommerce.model.User;
 import com.hezron.ecommerce.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,14 +22,18 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
+        // Add the ROLE_ prefix to conform to Spring Security's expected format
+        String role = "ROLE_" + user.getRole().name();
+        System.out.println("User role being assigned: " + role);
+
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),          // username (using email instead)
                 user.getPassword(),        // password
                 user.isActive(),           // enabled
-                true,                    // accountNonExpired
-                true,                    // credentialsNonExpired
-                true,                    // accountNonLocked
-                Collections.singleton(new SimpleGrantedAuthority(user.getRole().name()))
+                true,                      // accountNonExpired
+                true,                      // credentialsNonExpired
+                true,                      // accountNonLocked
+                Collections.singleton(new SimpleGrantedAuthority(role))
         );
     }
 }
