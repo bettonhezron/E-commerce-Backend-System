@@ -18,5 +18,5 @@ public class UserRegistrationDTO {
     private String firstName;
     private String lastName;
     private String phoneNumber;
-    private  Role role = Role.ROLE_CUSTOMER;
+    private  Role role = Role.CUSTOMER;
 }

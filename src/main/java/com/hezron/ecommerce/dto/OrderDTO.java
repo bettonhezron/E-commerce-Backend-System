@@ -1,6 +1,6 @@
 package com.hezron.ecommerce.dto;
 
-import com.hezron.ecommerce.model.OrderItem;
+
 import lombok.Data;
 
 import java.math.BigDecimal;
