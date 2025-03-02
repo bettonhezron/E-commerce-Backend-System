@@ -20,11 +20,11 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    //Register user
+    // Register user
     @Override
     @Transactional
-    public UserDTO registerUser(UserRegistrationDTO registrationDTO){
-        if(userRepository.existsByEmail(registrationDTO.getEmail())){
+    public UserDTO registerUser(UserRegistrationDTO registrationDTO) {
+        if (userRepository.existsByEmail(registrationDTO.getEmail())) {
             throw new EmailAlreadyExistsException("Email already registered");
         }
 
@@ -34,13 +34,44 @@ public class UserServiceImpl implements UserService {
         user.setFirstName(registrationDTO.getFirstName());
         user.setLastName(registrationDTO.getLastName());
         user.setPhoneNumber(registrationDTO.getPhoneNumber());
-        user.setRole(Role.ROLE_CUSTOMER);
+
+        // Set role based on DTO if provided, otherwise default to CUSTOMER
+        user.setRole(registrationDTO.getRole() != null ? registrationDTO.getRole() : Role.CUSTOMER);
 
         User savedUser = userRepository.save(user);
-       return convertDTO(savedUser);
-
+        return convertDTO(savedUser);
     }
 
+    // Create admin user method
+    @Override
+    @Transactional
+    public UserDTO registerAdminUser(UserRegistrationDTO registrationDTO, String adminKey) {
+        // Verify admin key (store this in a secure environment variable in production)
+        if (!"your-secure-admin-key".equals(adminKey)) {
+            throw new InvalidCredentialsException("Invalid admin registration key");
+        }
+
+        // Set role to ADMIN explicitly
+        registrationDTO.setRole(Role.ADMIN);
+        return registerUser(registrationDTO);
+    }
+
+    // Create initial admin if needed
+    @Override
+    @Transactional
+    public void createInitialAdminIfNeeded(String email, String password, String firstName, String lastName, String phoneNumber) {
+        if (!userRepository.existsByRole(Role.ADMIN)) {
+            User adminUser = new User();
+            adminUser.setEmail(email);
+            adminUser.setPassword(passwordEncoder.encode(password));
+            adminUser.setFirstName(firstName);
+            adminUser.setLastName(lastName);
+            adminUser.setPhoneNumber(phoneNumber);
+            adminUser.setRole(Role.ADMIN);
+
+            userRepository.save(adminUser);
+        }
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -50,14 +81,14 @@ public class UserServiceImpl implements UserService {
         return convertDTO(user);
     }
 
-    //Login User
+    // Login User
     @Override
     @Transactional(readOnly = true)
     public UserDTO authenticateUser(LoginDTO loginDTO) {
         User user = userRepository.findByEmail(loginDTO.getEmail())
                 .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
 
-        if(!passwordEncoder.matches(loginDTO.getPassword(), user.getPassword())){
+        if (!passwordEncoder.matches(loginDTO.getPassword(), user.getPassword())) {
             throw new InvalidCredentialsException("Invalid email or password");
         }
         return convertDTO(user);
@@ -70,16 +101,16 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
         return convertDTO(user);
     }
-//Converts User entity to UserDTO so to return only essential details
-private UserDTO convertDTO(User user) {
-    UserDTO dto = new UserDTO();
-    dto.setId(user.getId());
-    dto.setEmail(user.getEmail());
-    dto.setFirstName(user.getFirstName());
-    dto.setLastName(user.getLastName());
-    dto.setPhoneNumber(user.getPhoneNumber());
-    dto.setRole(user.getRole());
-    return dto;
-}
 
+    // Converts User entity to UserDTO to return only essential details
+    private UserDTO convertDTO(User user) {
+        UserDTO dto = new UserDTO();
+        dto.setId(user.getId());
+        dto.setEmail(user.getEmail());
+        dto.setFirstName(user.getFirstName());
+        dto.setLastName(user.getLastName());
+        dto.setPhoneNumber(user.getPhoneNumber());
+        dto.setRole(user.getRole());
+        return dto;
+    }
 }

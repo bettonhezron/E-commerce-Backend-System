@@ -6,8 +6,9 @@ import com.hezron.ecommerce.dto.UserRegistrationDTO;
 
 public interface UserService {
     UserDTO registerUser(UserRegistrationDTO registrationDTO);
+    UserDTO registerAdminUser(UserRegistrationDTO registrationDTO, String adminKey);
     UserDTO getUserById(Long id);
     UserDTO authenticateUser(LoginDTO loginDTO);
     UserDTO getUserByEmail(String email);
-
+    void createInitialAdminIfNeeded(String email, String password, String firstName, String lastName, String phoneNumber);
 }
