@@ -5,7 +5,9 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Data
 @Entity
@@ -19,7 +21,7 @@ public class Product {
     @Column(nullable = false)
     private String name;
 
-    @Column(length = 1000)
+    @Column(length = 2000)
     private String description;
 
     @Column(nullable = false)
@@ -33,8 +35,9 @@ public class Product {
     private Category category;
 
     @ElementCollection
-    @CollectionTable(name = "product_images")
-    private Set<String> imageUrls;
+    @CollectionTable(name = "product_images", joinColumns = @JoinColumn(name = "product_id"))
+    @Column(name = "image_url")
+    private List<String> imageUrls = new ArrayList<>();
 
     @Column(nullable = false)
     private Boolean active = true;
