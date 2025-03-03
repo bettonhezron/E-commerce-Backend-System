@@ -5,6 +5,7 @@ import com.hezron.ecommerce.exception.ResourceNotFoundException;
 import com.hezron.ecommerce.model.Product;
 import com.hezron.ecommerce.repository.CategoryRepository;
 import com.hezron.ecommerce.repository.ProductRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -133,5 +134,15 @@ public class ProductService {
         dto.setImageUrls(product.getImageUrls());
         dto.setActive(product.getActive());
         return dto;
+    }
+
+    public void bulkUpdateProductStatus(List<Long> ids, boolean active) {
+    }
+
+    public void bulkUpdateStock(@Valid List<ProductDTO> products) {
+    }
+
+    public List<ProductDTO> getLowStockProducts(Integer threshold) {
+        return null;
     }
 }
