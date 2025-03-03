@@ -3,7 +3,6 @@ package com.hezron.ecommerce.controller;
 import com.hezron.ecommerce.dto.ApiResponseDTO;
 import com.hezron.ecommerce.dto.PagedResponseDTO;
 import com.hezron.ecommerce.dto.ProductDTO;
-
 import com.hezron.ecommerce.service.ProductService;
 import com.hezron.ecommerce.exception.ResourceNotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
@@ -84,7 +83,7 @@ public class AdminProductController {
         }
     }
 
-    @Operation(summary = "Delete a product", description = "Deletes a product with the specified ID")
+    @Operation(summary = "Delete a product", description = "Soft deletes a product with the specified ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Product deleted successfully"),
             @ApiResponse(responseCode = "401", description = "Unauthorized"),
@@ -119,6 +118,7 @@ public class AdminProductController {
             @PathVariable Long id) {
         log.info("Fetching product with ID: {}", id);
         try {
+            // Note: Admin can see all products including inactive ones
             ProductDTO product = productService.getProductById(id);
             return ResponseEntity.ok(new ApiResponseDTO<>(true, "Product retrieved successfully", product));
         } catch (ResourceNotFoundException ex) {

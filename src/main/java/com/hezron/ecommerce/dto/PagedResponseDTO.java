@@ -28,7 +28,10 @@ public class PagedResponseDTO<T> {
     private boolean empty;               // Whether the page is empty
     private String sortBy;               // Field used for sorting
     private String sortDirection;        // Sort direction (asc/desc)
-    
+
+    public PagedResponseDTO(List<ProductDTO> productDTOs, int number, int size, long totalElements, int totalPages, boolean last) {
+    }
+
     /**
      * Factory method to create a PagedResponseDTO from Spring's Page object
      * 
