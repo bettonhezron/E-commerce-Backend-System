@@ -7,11 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-/**
- * Data Transfer Object for paginated responses
- * Contains content items, pagination metadata, and sorting information
- * @param <T> The type of items in the content list
- */
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
