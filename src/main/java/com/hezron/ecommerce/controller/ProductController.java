@@ -179,4 +179,20 @@ public class ProductController {
                 products
         ));
     }
+
+    @GetMapping("/by-category/{categoryId}")
+    @Operation(summary = "Get products by category")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Products retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "Category not found")
+    })
+    public ResponseEntity<ApiResponseDTO<List<ProductDTO>>> getProductsByCategory(
+            @PathVariable Long categoryId) {
+        List<ProductDTO> products = productService.getProductsByCategory(categoryId);
+
+        return ResponseEntity.ok(new ApiResponseDTO<>(
+                "Products retrieved successfully",
+                products
+        ));
+    }
 }
