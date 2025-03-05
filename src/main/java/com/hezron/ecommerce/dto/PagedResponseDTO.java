@@ -7,13 +7,12 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class PagedResponseDTO<T> {
-    
+
     private List<T> content;             // List of items in the current page
     private int pageNumber;              // Current page number (0-based)
     private int pageSize;                // Number of items per page
@@ -25,34 +24,33 @@ public class PagedResponseDTO<T> {
     private String sortBy;               // Field used for sorting
     private String sortDirection;        // Sort direction (asc/desc)
 
-    public PagedResponseDTO(List<ProductDTO> productDTOs, int number, int size, long totalElements, int totalPages, boolean last) {
+    // Constructor that matches the usage in the previous example
+    public PagedResponseDTO(List<T> content, int pageNumber, int pageSize,
+                            long totalElements, int totalPages, boolean last) {
+        this.content = content;
+        this.pageNumber = pageNumber;
+        this.pageSize = pageSize;
+        this.totalElements = totalElements;
+        this.totalPages = totalPages;
+        this.first = pageNumber == 0;
+        this.last = last;
+        this.empty = content == null || content.isEmpty();
     }
 
-    /**
-     * Factory method to create a PagedResponseDTO from Spring's Page object
-     * 
-     * @param content List of items for the current page
-     * @param pageNumber Current page number (0-based)
-     * @param pageSize Size of each page
-     * @param totalElements Total number of items across all pages
-     * @param totalPages Total number of pages
-     * @param sortBy Field used for sorting
-     * @param sortDirection Sort direction (asc/desc)
-     * @return A new PagedResponseDTO instance
-     */
-    public static <T> PagedResponseDTO<T> of(
-            List<T> content, 
-            int pageNumber, 
-            int pageSize, 
-            long totalElements, 
+    //Factory method to create a PagedResponseDTO from Spring's Page object
+       public static <T> PagedResponseDTO<T> of(
+            List<T> content,
+            int pageNumber,
+            int pageSize,
+            long totalElements,
             int totalPages,
-            String sortBy, 
+            String sortBy,
             String sortDirection) {
-        
+
         boolean first = pageNumber == 0;
         boolean last = pageNumber == totalPages - 1 || totalPages == 0;
-        boolean empty = content.isEmpty();
-        
+        boolean empty = content == null || content.isEmpty();
+
         return PagedResponseDTO.<T>builder()
                 .content(content)
                 .pageNumber(pageNumber)
