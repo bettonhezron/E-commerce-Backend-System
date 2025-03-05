@@ -234,4 +234,21 @@ public class AdminProductController {
         return ResponseEntity.ok(new ApiResponseDTO<>(true,
                 String.format("Updated stock for %d products", products.size()), null));
     }
+
+    @PatchMapping("/{id}/category")
+    @Operation(summary = "Update product category")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Product category updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Product or Category not found")
+    })
+    public ResponseEntity<ApiResponseDTO<ProductDTO>> updateProductCategory(
+            @PathVariable Long id,
+            @RequestParam Long categoryId) {
+        ProductDTO updatedProduct = productService.updateProductCategory(id, categoryId);
+
+        return ResponseEntity.ok(new ApiResponseDTO<>(
+                "Product category updated successfully",
+                updatedProduct
+        ));
+    }
 }
