@@ -67,12 +67,13 @@ public class ProductService {
     /**
      * Get products by category
      */
-    public List<ProductDTO> getProductsByCategory(Long categoryId) {
+/*    public List<ProductDTO> getProductsByCategory(Long categoryId) {
         List<Product> products = productRepository.findByCategoryIdAndActiveTrue(categoryId);
         return products.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
+    */
 
     /**
      * Get products by name search
@@ -125,6 +126,25 @@ public class ProductService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
+
+    // Method to update product category
+    public ProductDTO updateProductCategory(Long productId, Long categoryId) {
+        // Find the product
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found: " + productId));
+
+        // Find and verify the category
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found: " + categoryId));
+
+        // Update the product's category
+        product.setCategory(category);
+
+        // Save and return
+        return convertToDTO(productRepository.save(product));
+    }
+
+
     // ================= ADMIN-FACING METHODS =================
 
     /**
