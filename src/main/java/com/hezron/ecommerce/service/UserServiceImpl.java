@@ -10,6 +10,8 @@ import com.hezron.ecommerce.model.Role;
 import com.hezron.ecommerce.model.User;
 import com.hezron.ecommerce.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +21,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+
+    @Value("${admin.key}")
+    private String expectedAdminKey;
 
     // Register user
     @Override
@@ -47,7 +52,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDTO registerAdminUser(UserRegistrationDTO registrationDTO, String adminKey) {
         // Verify admin key (store this in a secure environment variable in production)
-        if (!"your-secure-admin-key".equals(adminKey)) {
+        if (!expectedAdminKey.equals(adminKey)) {
             throw new InvalidCredentialsException("Invalid admin registration key");
         }
 
