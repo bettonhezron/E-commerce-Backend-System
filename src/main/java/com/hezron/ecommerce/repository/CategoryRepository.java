@@ -39,5 +39,5 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     // Find all subcategories of a given parent category
     List<Category> findByParent_Id(Long parentId);
 
-    List<Product> findByCategory_Id(Long categoryId);
+
 }
