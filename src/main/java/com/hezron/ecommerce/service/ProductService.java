@@ -114,6 +114,17 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
+    //Method to get all products by category
+    public  List<ProductDTO> getProductsByCategory(Long categoryId){
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+
+        List<Product> products = productRepository.findByCategory_Id(categoryId);
+
+        return products.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
     // ================= ADMIN-FACING METHODS =================
 
     /**
