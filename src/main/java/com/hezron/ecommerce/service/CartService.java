@@ -2,6 +2,7 @@ package com.hezron.ecommerce.service;
 
 import com.hezron.ecommerce.dto.CartDTO;
 
+
 public interface CartService {
 
     CartDTO getCurrentCart();
@@ -13,6 +14,7 @@ public interface CartService {
     CartDTO removeFromCart(Long itemId);
 
     void clearCart();
+
 
 
 }

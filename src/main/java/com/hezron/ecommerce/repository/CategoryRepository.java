@@ -1,7 +1,7 @@
 package com.hezron.ecommerce.repository;
 
 import com.hezron.ecommerce.model.Category;
-import com.hezron.ecommerce.model.Product;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
