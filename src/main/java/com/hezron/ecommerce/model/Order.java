@@ -1,6 +1,5 @@
 package com.hezron.ecommerce.model;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -9,8 +8,8 @@ import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Entity
@@ -36,37 +35,39 @@ public class Order {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @JsonIgnore  // Prevents infinite recursion
-    private Set<OrderItem> orderItems = new HashSet<>();;
+    private List<OrderItem> items = new ArrayList<>();
 
     @Column(name = "subtotal", nullable = false)
     private BigDecimal subtotal;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private OrderStatus status;
-
-    @ManyToOne
-    @JoinColumn(name = "shipping_address_id")
-    private Address shippingAddress;
-
-    @Column(nullable = false)
-    private String paymentMethod;
-
-    @Column(name = "billing_address", nullable = false)
-    private String billingAddress;
-
-    @Column(unique = true)
-    private String trackingNumber;
     @Column(name = "tax", nullable = false)
     private BigDecimal tax;
+
+    @Column(name = "shipping_cost", nullable = false)
+    private BigDecimal shippingCost;
 
     @Column(name = "total", nullable = false)
     private BigDecimal total;
 
-    @Column(nullable = false, updatable = false)
+    @Column(name = "status", nullable = false)
+    private String status;
+
+    @Column(name = "shipping_address", nullable = false, columnDefinition = "TEXT")
+    private String shippingAddress;
+
+    @Column(name = "billing_address", nullable = false, columnDefinition = "TEXT")
+    private String billingAddress;
+
+    @Column(name = "payment_method", nullable = false)
+    private String paymentMethod;
+
+    @Column(name = "tracking_number")
+    private String trackingNumber;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(nullable = false)
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
     @PrePersist
@@ -75,8 +76,8 @@ public class Order {
         updatedAt = LocalDateTime.now();
     }
 
-    @PreUpdate void onUpdate(){
+    @PreUpdate
+    protected void onUpdate(){
         updatedAt = LocalDateTime.now();
     }
-
 }
