@@ -183,7 +183,7 @@ public class CartServiceImpl implements CartService {
         cart.setSubtotal(BigDecimal.ZERO);
         cart.setTax(BigDecimal.ZERO);
         cart.setShippingCost(BigDecimal.ZERO);
-        cart.setTotal(BigDecimal.ZERO);
+        cart.setTotalAmount(BigDecimal.ZERO);
         
         cartRepository.save(cart);
     }
@@ -206,7 +206,7 @@ public class CartServiceImpl implements CartService {
                         newCart.setSubtotal(BigDecimal.ZERO);
                         newCart.setTax(BigDecimal.ZERO);
                         newCart.setShippingCost(BigDecimal.ZERO);
-                        newCart.setTotal(BigDecimal.ZERO);
+                        newCart.setTotalAmount(BigDecimal.ZERO);
                         return cartRepository.save(newCart);
                     });
         } else {
@@ -221,7 +221,7 @@ public class CartServiceImpl implements CartService {
                         newCart.setSubtotal(BigDecimal.ZERO);
                         newCart.setTax(BigDecimal.ZERO);
                         newCart.setShippingCost(BigDecimal.ZERO);
-                        newCart.setTotal(BigDecimal.ZERO);
+                        newCart.setTotalAmount(BigDecimal.ZERO);
                         return cartRepository.save(newCart);
                     });
         }
@@ -252,7 +252,7 @@ public class CartServiceImpl implements CartService {
         
         // Calculate total
         BigDecimal total = subtotal.add(tax).add(shippingCost);
-        cart.setTotal(total);
+        cart.setTotalAmount(total);
     }
     
     /**
@@ -268,7 +268,7 @@ public class CartServiceImpl implements CartService {
                 .subtotal(cart.getSubtotal())
                 .tax(cart.getTax())
                 .shippingCost(cart.getShippingCost())
-                .total(cart.getTotal())
+                .total(cart.getTotalAmount())
                 .itemCount(cart.getItems().size())
                 .build();
     }

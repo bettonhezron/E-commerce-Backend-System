@@ -11,6 +11,7 @@ import com.hezron.ecommerce.model.*;
 import com.hezron.ecommerce.repository.OrderItemRepository;
 import com.hezron.ecommerce.repository.OrderRepository;
 import com.hezron.ecommerce.repository.ProductRepository;
+import com.hezron.ecommerce.repository.AddressRepository;
 
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final ProductRepository productRepository;
+    private final AddressRepository addressRepository;
     private final CartService cartService;
     private final UserService userService;
 
@@ -42,52 +44,79 @@ public class OrderServiceImpl implements OrderService {
         // Get current user
         User user = userService.getCurrentUser()
                 .orElseThrow(() -> new AccessDeniedException("You must be logged in to place an order"));
-        
+
         // Get current cart
         CartDTO cart = cartService.getCurrentCart();
-        
+
         // Validate cart is not empty
         if (cart.getItems().isEmpty()) {
             throw new ValidationException("Cannot place an order with an empty cart");
         }
-        
-        // Validate shipping address
-        if (orderRequest.getShippingAddress() == null || orderRequest.getShippingAddress().isBlank()) {
+
+        // Validate and get shipping address
+        Address shippingAddress = null;
+        if (orderRequest.getShippingAddressId() != null) {
+            shippingAddress = addressRepository.findByIdAndUser(orderRequest.getShippingAddressId(), user)
+                    .orElseThrow(() -> new ResourceNotFoundException("Shipping address not found"));
+        } else if (orderRequest.getShippingAddress() == null || orderRequest.getShippingAddress().isBlank()) {
             throw new ValidationException("Shipping address is required");
         }
-        
+
+        // Get billing address if provided
+        Address billingAddress = null;
+        if (orderRequest.getBillingAddressId() != null) {
+            billingAddress = addressRepository.findByIdAndUser(orderRequest.getBillingAddressId(), user)
+                    .orElseThrow(() -> new ResourceNotFoundException("Billing address not found"));
+        }
+
         // Create new order
         Order order = new Order();
         order.setUser(user);
         order.setOrderNumber(generateOrderNumber());
         order.setOrderDate(LocalDateTime.now());
         order.setStatus(OrderStatus.PENDING.name());
-        order.g(cart.getSubtotal());
+        order.setSubtotal(cart.getSubtotal());
         order.setTax(cart.getTax());
         order.setShippingCost(cart.getShippingCost());
         order.setTotal(cart.getTotal());
-        order.setShippingAddress(orderRequest.getShippingAddress());
-        order.setBillingAddress(orderRequest.getBillingAddress() != null ? 
-                orderRequest.getBillingAddress() : orderRequest.getShippingAddress());
+
+        // Set shipping address
+        if (shippingAddress != null) {
+            order.setShippingAddress(formatAddress(shippingAddress));
+        } else {
+            order.setShippingAddress(orderRequest.getShippingAddress());
+        }
+
+        // Set billing address
+        if (billingAddress != null) {
+            order.setBillingAddress(formatAddress(billingAddress));
+        } else if (orderRequest.getBillingAddress() != null && !orderRequest.getBillingAddress().isBlank()) {
+            order.setBillingAddress(orderRequest.getBillingAddress());
+        } else if (shippingAddress != null) {
+            order.setBillingAddress(formatAddress(shippingAddress));
+        } else {
+            order.setBillingAddress(orderRequest.getShippingAddress());
+        }
+
         order.setPaymentMethod(orderRequest.getPaymentMethod());
         order.setItems(new ArrayList<>());
-        
+
         // Save the order first to get an ID
         order = orderRepository.save(order);
-        
+
         // Create order items and update product stock
         for (var cartItem : cart.getItems()) {
             // Get the product to update stock
             Product product = productRepository.findById(cartItem.getProductId())
                     .orElseThrow(() -> new ResourceNotFoundException(
                             "Product not found with ID: " + cartItem.getProductId()));
-            
+
             // Check if product is still in stock
             if (product.getStockQuantity() < cartItem.getQuantity()) {
-                throw new ValidationException("Product '" + product.getName() + 
+                throw new ValidationException("Product '" + product.getName() +
                         "' does not have enough stock. Available: " + product.getStockQuantity());
             }
-            
+
             // Create order item
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
@@ -95,21 +124,21 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setQuantity(cartItem.getQuantity());
             orderItem.setUnitPrice(cartItem.getUnitPrice());
             orderItem.setTotalPrice(cartItem.getTotalPrice());
-            
+
             // Add to order
             order.getItems().add(orderItem);
-            
+
             // Update product stock
             product.setStockQuantity(product.getStockQuantity() - cartItem.getQuantity());
             productRepository.save(product);
         }
-        
+
         // Save order items
         order.getItems().forEach(orderItemRepository::save);
-        
+
         // Clear the cart
         cartService.clearCart();
-        
+
         return mapToOrderDTO(order);
     }
 
@@ -119,16 +148,16 @@ public class OrderServiceImpl implements OrderService {
         // Get current user
         User user = userService.getCurrentUser()
                 .orElseThrow(() -> new AccessDeniedException("You must be logged in to view orders"));
-        
+
         // Find order
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + id));
-        
+
         // Check if order belongs to current user
         if (!order.getUser().getId().equals(user.getId()) && !userService.isAdmin()) {
             throw new AccessDeniedException("You do not have permission to view this order");
         }
-        
+
         return mapToOrderDTO(order);
     }
 
@@ -138,15 +167,28 @@ public class OrderServiceImpl implements OrderService {
         // Get current user
         User user = userService.getCurrentUser()
                 .orElseThrow(() -> new AccessDeniedException("You must be logged in to view orders"));
-        
+
         // Get user's orders
         List<Order> orders = orderRepository.findByUserOrderByOrderDateDesc(user);
-        
+
         return orders.stream()
                 .map(this::mapToOrderDTO)
                 .collect(Collectors.toList());
     }
-    
+
+    /**
+     * Formats an address object into a string
+     */
+    private String formatAddress(Address address) {
+        return String.format("%s, %s, %s, %s %s, %s",
+                address.getFullName(),
+                address.getStreetAddress(),
+                address.getCity(),
+                address.getState(),
+                address.getZipCode(),
+                address.getCountry());
+    }
+
     /**
      * Generates a unique order number
      */
@@ -156,7 +198,7 @@ public class OrderServiceImpl implements OrderService {
         String timestamp = String.valueOf(System.currentTimeMillis()).substring(6);
         return "ORD-" + uuid + "-" + timestamp;
     }
-    
+
     /**
      * Maps an Order entity to OrderDTO
      */
@@ -164,7 +206,7 @@ public class OrderServiceImpl implements OrderService {
         List<OrderItemDTO> itemDTOs = order.getItems().stream()
                 .map(this::mapToOrderItemDTO)
                 .collect(Collectors.toList());
-        
+
         return OrderDTO.builder()
                 .id(order.getId())
                 .orderNumber(order.getOrderNumber())
@@ -173,14 +215,14 @@ public class OrderServiceImpl implements OrderService {
                 .subtotal(order.getSubtotal())
                 .tax(order.getTax())
                 .shippingCost(order.getShippingCost())
-                .total(order.getTotal())
+                .totalAmount(order.getTotal())
                 .shippingAddress(order.getShippingAddress())
                 .billingAddress(order.getBillingAddress())
                 .paymentMethod(order.getPaymentMethod())
                 .items(itemDTOs)
                 .build();
     }
-    
+
     /**
      * Maps an OrderItem entity to OrderItemDTO
      */

@@ -41,8 +41,8 @@ public class Cart {
     @Column(name = "shipping_cost", precision = 10, scale = 2, nullable = false)
     private BigDecimal shippingCost;
 
-    @Column(name = "total", precision = 10, scale = 2, nullable = false)
-    private BigDecimal total;
+    @Column(name = "totalAmount", precision = 10, scale = 2, nullable = false)
+    private BigDecimal totalAmount;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

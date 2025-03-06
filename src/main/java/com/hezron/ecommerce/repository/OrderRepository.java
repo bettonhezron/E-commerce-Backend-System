@@ -1,7 +1,7 @@
 package com.hezron.ecommerce.repository;
 
 import com.hezron.ecommerce.model.Order;
-import com.hezron.ecommerce.model.OrderStatus;
+
 import com.hezron.ecommerce.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -10,6 +10,6 @@ import java.util.List;
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
     List<Order> findByUserId(Long userId);
-    List<Order> findByStatus(OrderStatus status);
-    List<Order> findByOrderByOrderDateDesc(User user);
+    List<Order> findByStatus(String status);
+    List<Order> findByUserOrderByOrderDateDesc(User user);
 }
