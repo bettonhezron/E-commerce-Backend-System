@@ -21,5 +21,12 @@ public interface UserService {
 
     boolean isAdmin();
 
+    String getGuestSessionId();
+
+    public interface SessionService {
+        String getGuestSessionId();
+    }
+
+
 
 }

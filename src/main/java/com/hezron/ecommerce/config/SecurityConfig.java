@@ -47,7 +47,9 @@ public class SecurityConfig {
                                 "/api/products/category/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html"
+                                "/swagger-ui.html",
+                                "/api/cart/**"
+
                         ).permitAll()
 
                         // Admin-only endpoints

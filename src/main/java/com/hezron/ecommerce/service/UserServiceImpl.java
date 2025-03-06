@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -130,6 +131,13 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
         return convertDTO(user);
     }
+
+
+    @Override
+    public String getGuestSessionId() {
+        return UUID.randomUUID().toString();
+    }
+
 
     // Converts User entity to UserDTO to return only essential details
     private UserDTO convertDTO(User user) {

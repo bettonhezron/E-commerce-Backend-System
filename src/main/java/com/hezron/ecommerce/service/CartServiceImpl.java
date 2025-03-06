@@ -52,7 +52,6 @@ public class CartServiceImpl implements CartService {
         Cart cart = getOrCreateCart();
         return mapToCartDTO(cart);
     }
-
     @Override
     @Transactional
     public CartDTO addToCart(Long productId, Integer quantity) {
@@ -63,54 +62,50 @@ public class CartServiceImpl implements CartService {
         // Get the product
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + productId));
-        
-        // Check if product is active and in stock
+
+        // Ensure the product is available
         if (!product.getActive()) {
             throw new ValidationException("Product is not available");
         }
-        
         if (product.getStockQuantity() < quantity) {
-            throw new ValidationException("Not enough stock available. Currently available: " + product.getStockQuantity());
+            throw new ValidationException("Not enough stock available.");
         }
 
-        // Get or create cart
+        // Get or create cart (handles both guests and authenticated users)
         Cart cart = getOrCreateCart();
-        
-        // Check if product already in cart
+
+        // Add or update item in cart
         Optional<CartItem> existingItemOpt = cart.getItems().stream()
                 .filter(item -> item.getProduct().getId().equals(productId))
                 .findFirst();
-        
+
         if (existingItemOpt.isPresent()) {
-            // Update existing item
             CartItem existingItem = existingItemOpt.get();
             int newQuantity = existingItem.getQuantity() + quantity;
-            
-            // Recheck stock availability
+
             if (product.getStockQuantity() < newQuantity) {
                 throw new ValidationException("Not enough stock available for the requested quantity");
             }
-            
+
             existingItem.setQuantity(newQuantity);
             cartItemRepository.save(existingItem);
         } else {
-            // Create new cart item
             CartItem newItem = new CartItem();
             newItem.setCart(cart);
             newItem.setProduct(product);
             newItem.setQuantity(quantity);
             newItem.setUnitPrice(product.getPrice());
-            
+
             cart.getItems().add(newItem);
             cartItemRepository.save(newItem);
         }
-        
-        // Update cart totals
+
         updateCartTotals(cart);
         cartRepository.save(cart);
-        
+
         return mapToCartDTO(cart);
     }
+
 
     @Override
     @Transactional
@@ -193,42 +188,33 @@ public class CartServiceImpl implements CartService {
      */
     private Cart getOrCreateCart() {
         Optional<User> currentUser = userService.getCurrentUser();
-        
-        Cart cart;
+
         if (currentUser.isPresent()) {
-            // For authenticated users
+            // Authenticated user
             User user = currentUser.get();
-            cart = cartRepository.findByUser(user)
+            return cartRepository.findByUser(user)
                     .orElseGet(() -> {
                         Cart newCart = new Cart();
                         newCart.setUser(user);
                         newCart.setItems(new ArrayList<>());
-                        newCart.setSubtotal(BigDecimal.ZERO);
-                        newCart.setTax(BigDecimal.ZERO);
-                        newCart.setShippingCost(BigDecimal.ZERO);
-                        newCart.setTotalAmount(BigDecimal.ZERO);
                         return cartRepository.save(newCart);
                     });
         } else {
-            // For anonymous users (would use session ID in a real implementation)
-            // This is simplified - in a real app, you'd use the session ID to track anonymous carts
-            String sessionId = "anonymous-session";
-            cart = cartRepository.findBySessionId(sessionId)
+            // Guest user - retrieve session ID
+            String sessionId = userService.getGuestSessionId(); // Ensure session management is properly handled
+
+            return cartRepository.findBySessionId(sessionId)
                     .orElseGet(() -> {
                         Cart newCart = new Cart();
                         newCart.setSessionId(sessionId);
                         newCart.setItems(new ArrayList<>());
-                        newCart.setSubtotal(BigDecimal.ZERO);
-                        newCart.setTax(BigDecimal.ZERO);
-                        newCart.setShippingCost(BigDecimal.ZERO);
-                        newCart.setTotalAmount(BigDecimal.ZERO);
                         return cartRepository.save(newCart);
                     });
         }
-        
-        return cart;
     }
-    
+
+
+
     /**
      * Updates the cart totals (subtotal, tax, shipping, total)
      */
