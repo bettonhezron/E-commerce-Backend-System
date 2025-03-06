@@ -2,7 +2,10 @@ package com.hezron.ecommerce.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -19,8 +22,26 @@ public class Cart {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL)
-    private Set<CartItem> cartItems;
+    //for anonymous carts
+    @Column(name = "session_id")
+    private String sessionId;
+
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL,orphanRemoval = true)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Set<CartItem> items;
+
+    @Column(name = "subtotal", precision = 10, scale = 2, nullable = false)
+    private BigDecimal subtotal;
+
+    @Column(name = "tax", precision = 10, scale = 2, nullable = false)
+    private BigDecimal tax;
+
+    @Column(name = "shipping_cost", precision = 10, scale = 2, nullable = false)
+    private BigDecimal shippingCost;
+
+    @Column(name = "total", precision = 10, scale = 2, nullable = false)
+    private BigDecimal total;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
