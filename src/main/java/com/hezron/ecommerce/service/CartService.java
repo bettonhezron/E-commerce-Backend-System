@@ -1,4 +1,6 @@
 package com.hezron.ecommerce.service;
 
-public class CartService {
+public interface CartService {
+
+
 }
