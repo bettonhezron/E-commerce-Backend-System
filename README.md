@@ -133,9 +133,9 @@ Once the application is running, you can access the API documentation at:
 ✅ Entity models defined  
 ✅ Repository layer implemented  
 ✅ Service layer implementation  
-⬜️ Controller implementations  
+✅Controller implementations  
 ✅ Security configuration  
-⬜️ API documentation
+✅ API documentation
 
 ## License
 
