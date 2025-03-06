@@ -197,17 +197,29 @@ public class CartServiceImpl implements CartService {
                         Cart newCart = new Cart();
                         newCart.setUser(user);
                         newCart.setItems(new ArrayList<>());
+                        newCart.setSubtotal(BigDecimal.ZERO);
+                        newCart.setTax(BigDecimal.ZERO);
+                        newCart.setShippingCost(BigDecimal.ZERO);
+                        newCart.setTotalAmount(BigDecimal.ZERO);
+
                         return cartRepository.save(newCart);
                     });
         } else {
             // Guest user - retrieve session ID
-            String sessionId = userService.getGuestSessionId(); // Ensure session management is properly handled
+            String sessionId = userService.getGuestSessionId();
 
             return cartRepository.findBySessionId(sessionId)
                     .orElseGet(() -> {
                         Cart newCart = new Cart();
                         newCart.setSessionId(sessionId);
                         newCart.setItems(new ArrayList<>());
+
+                        // Initialize the BigDecimal fields
+                        newCart.setSubtotal(BigDecimal.ZERO);
+                        newCart.setTax(BigDecimal.ZERO);
+                        newCart.setShippingCost(BigDecimal.ZERO);
+                        newCart.setTotalAmount(BigDecimal.ZERO);
+
                         return cartRepository.save(newCart);
                     });
         }
