@@ -21,6 +21,13 @@ public class OrderItem {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
+    @Column(name = "quantity", nullable = false)
     private Integer quantity;
-    private BigDecimal price;
+
+    @Column(name = "unit_price", precision = 10, scale = 2, nullable = false)
+    private BigDecimal unitePrice;
+
+    @Column(name = "total_price", precision = 10, scale = 2, nullable = false)
+    private BigDecimal totalPrice;
+
 }

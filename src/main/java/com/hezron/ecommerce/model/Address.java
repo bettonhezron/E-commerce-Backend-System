@@ -16,11 +16,18 @@ public class Address {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+
+    private String fullName;
     private String streetAddress;
     private String city;
     private String state;
-    private String country;
     private  String zipCode;
+    private String country;
+
+
+    @Column
+    private String phoneNumber;
+    @Column(nullable = false)
     private boolean isDefault;
 
 }
