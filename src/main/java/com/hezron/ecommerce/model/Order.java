@@ -23,7 +23,7 @@ public class Order {
     @Column(name = "order_number", nullable = false, unique = true)
     private String orderNumber;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnore
     private User user;
@@ -46,8 +46,8 @@ public class Order {
     @Column(name = "shipping_cost", nullable = false)
     private BigDecimal shippingCost;
 
-    @Column(name = "total", nullable = false)
-    private BigDecimal total;
+    @Column(name = "total_amount", nullable = false)
+    private BigDecimal totalAmount;
 
     @Column(name = "status", nullable = false)
     private String status;

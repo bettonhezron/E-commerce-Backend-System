@@ -11,15 +11,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderRequestDTO {
-    private Long shippingAddressId;
-    private String shippingAddress;
-
-    private Long  billingAddressId;
-    private String billingAddress;
-
     @NotBlank(message = "Payment method is required")
     private String paymentMethod;
 
-    private String paymentDetails;
-    private String specialInstructions;
+    @NotBlank(message = "Shipping address is required")
+    private String shippingAddress;
+
+    @NotBlank(message = "Billing address us required")
+    private String billingAddress;
 }
