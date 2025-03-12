@@ -90,4 +90,8 @@ public class AuthController {
                 .authorities(new SimpleGrantedAuthority("ROLE_" + userDTO.getRole().name()))
                 .build();
     }
+    @GetMapping("/me")
+    public ResponseEntity<String> getMe() {
+        return ResponseEntity.ok("User info retrieved successfully!");
+    }
 }
