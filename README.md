@@ -131,6 +131,7 @@ Once the application is running, you can access the API documentation at:
 ## Current Implementation Status
 
 ✅ Entity models defined  
+✅ DTO impementaion
 ✅ Repository layer implemented  
 ✅ Service layer implementation  
 ✅Controller implementations  
