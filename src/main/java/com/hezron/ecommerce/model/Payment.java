@@ -25,7 +25,8 @@ public class Payment {
     @Column(nullable = false)
     private String transactionId;
 
-
+    @OneToOne
+    @JoinColumn(name = "order_id")
     private Order order;
 
     @Column(nullable = false)
