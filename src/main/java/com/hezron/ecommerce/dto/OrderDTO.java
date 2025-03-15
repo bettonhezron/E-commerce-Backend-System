@@ -28,5 +28,6 @@ public class OrderDTO {
     private String billingAddress;
     private  String trackingNumber;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private List<OrderItemDTO> items;
 }

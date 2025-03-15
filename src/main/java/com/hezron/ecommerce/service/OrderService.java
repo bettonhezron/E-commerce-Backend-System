@@ -20,4 +20,7 @@ public interface OrderService {
     List<OrderDTO> getCurrentUserOrders();
 
     List<OrderDTO> getCurrentUserOrders(String username);
+
+    @Transactional
+    OrderDTO updateOrderStatus(Long orderId, String status);
 }

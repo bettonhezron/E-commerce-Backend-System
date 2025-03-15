@@ -18,10 +18,12 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -36,6 +38,21 @@ public class OrderServiceImpl implements OrderService {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
 
+    // List of supported payment methods - should match those in PaymentServiceImpl
+    private static final List<String> SUPPORTED_PAYMENT_METHODS = Arrays.asList(
+            "card", "paypal", "apple_pay", "google_pay", "bank_transfer"
+    );
+
+    // Order status constants
+    public static final String STATUS_PENDING = "PENDING";
+    public static final String STATUS_PAYMENT_PROCESSING = "PAYMENT_PROCESSING";
+    public static final String STATUS_PAID = "PAID";
+    public static final String STATUS_PAYMENT_FAILED = "PAYMENT_FAILED";
+    public static final String STATUS_PAYMENT_CANCELED = "PAYMENT_CANCELED";
+    public static final String STATUS_SHIPPED = "SHIPPED";
+    public static final String STATUS_DELIVERED = "DELIVERED";
+    public static final String STATUS_CANCELED = "CANCELED";
+
     @Override
     @Transactional
     public OrderDTO placeOrder(OrderRequestDTO orderRequest) {
@@ -47,6 +64,9 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public OrderDTO placeOrder(OrderRequestDTO orderRequest, String username) {
+        // Validate payment method
+        validatePaymentMethod(orderRequest.getPaymentMethod());
+
         // Get the user
         User user = userRepository.findByEmail(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + username));
@@ -63,7 +83,7 @@ public class OrderServiceImpl implements OrderService {
         order.setUser(user);
         order.setOrderNumber(generateOrderNumber());
         order.setOrderDate(LocalDateTime.now());
-        order.setStatus("PENDING");
+        order.setStatus(STATUS_PENDING);
         order.setShippingAddress(orderRequest.getShippingAddress());
         order.setBillingAddress(orderRequest.getBillingAddress());
         order.setPaymentMethod(orderRequest.getPaymentMethod());
@@ -77,6 +97,11 @@ public class OrderServiceImpl implements OrderService {
             Product product = productRepository.findById(cartItem.getProductId())
                     .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + cartItem.getProductId()));
 
+            // Check product availability
+            if (product.getStockQuantity() < cartItem.getQuantity()) {
+                throw new IllegalStateException("Not enough stock for product: " + product.getName());
+            }
+
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
             orderItem.setProduct(product);
@@ -86,6 +111,10 @@ public class OrderServiceImpl implements OrderService {
 
             orderItems.add(orderItem);
             subtotal = subtotal.add(orderItem.getTotalPrice());
+
+            // Reduce product stock
+            product.setStockQuantity(product.getStockQuantity() - cartItem.getQuantity());
+            productRepository.save(product);
         }
 
         // Set order amounts
@@ -102,6 +131,8 @@ public class OrderServiceImpl implements OrderService {
 
         // Clear the cart after successful order placement
         cartService.clearCart();
+
+        log.info("Order placed successfully: {}", savedOrder.getOrderNumber());
 
         return convertToDTO(savedOrder);
     }
@@ -144,9 +175,32 @@ public class OrderServiceImpl implements OrderService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    @Override
+    public OrderDTO updateOrderStatus(Long orderId, String status) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + orderId));
+
+        order.setStatus(status);
+        order.setUpdatedAt(LocalDateTime.now());
+
+        if (STATUS_SHIPPED.equals(status) && order.getTrackingNumber() == null) {
+            order.setTrackingNumber(generateTrackingNumber());
+        }
+
+        Order updatedOrder = orderRepository.save(order);
+        log.info("Order status updated to {} for order {}", status, orderId);
+
+        return convertToDTO(updatedOrder);
+    }
+
     // Helper methods
     private String generateOrderNumber() {
         return "ORD-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+    }
+
+    private String generateTrackingNumber() {
+        return "TRK-" + UUID.randomUUID().toString().substring(0, 12).toUpperCase();
     }
 
     private BigDecimal calculateTax(BigDecimal subtotal) {
@@ -164,6 +218,13 @@ public class OrderServiceImpl implements OrderService {
             return new BigDecimal("8.99");
         } else {
             return new BigDecimal("12.99");
+        }
+    }
+
+    // Validate payment method - should match the one in PaymentServiceImpl
+    private void validatePaymentMethod(String paymentMethod) {
+        if (!StringUtils.hasText(paymentMethod) || !SUPPORTED_PAYMENT_METHODS.contains(paymentMethod.toLowerCase())) {
+            throw new IllegalArgumentException("Unsupported payment method: " + paymentMethod);
         }
     }
 
@@ -193,6 +254,7 @@ public class OrderServiceImpl implements OrderService {
                 .billingAddress(order.getBillingAddress())
                 .trackingNumber(order.getTrackingNumber())
                 .createdAt(order.getCreatedAt())
+                .updatedAt(order.getUpdatedAt())
                 .items(itemDTOs)
                 .build();
     }
