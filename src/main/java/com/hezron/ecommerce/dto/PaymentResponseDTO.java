@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PaymentResponseDTO {
     private String transactionId;
+    private String clientSecret;
     private String status;
     private String message;
     private PaymentDTO payment;
