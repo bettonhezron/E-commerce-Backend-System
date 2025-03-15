@@ -14,13 +14,15 @@ import java.time.LocalDateTime;
 @Builder
 public class PaymentDTO {
 private Long id;
-private String transactionID;
+private String transactionId;
 private Long orderId;
 private BigDecimal amount;
 private String currency;
 private String paymentMethod;
 private  String status;
+private LocalDateTime updatedAt;
 private LocalDateTime createdAt;
+private String gatewayResponse;
 
 
 }
