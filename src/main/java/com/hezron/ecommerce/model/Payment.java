@@ -22,7 +22,7 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String transactionId;
 
     @OneToOne
@@ -41,10 +41,11 @@ public class Payment {
     @Column(nullable = false)
     private String status;
 
+    @Column(columnDefinition = "TEXT")
     private String gatewayResponse;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    private LocalDateTime updateAt;
+    private LocalDateTime updatedAt;
 }
