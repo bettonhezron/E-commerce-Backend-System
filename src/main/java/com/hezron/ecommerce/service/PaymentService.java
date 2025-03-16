@@ -12,5 +12,7 @@ public interface PaymentService {
     PaymentResponseDTO processPayment(PaymentRequestDTO paymentRequestDTO) throws AccessDeniedException;
     PaymentDTO getPaymentByOrderId(Long orderId) throws AccessDeniedException;
     PaymentDTO getPaymentByTransactionId(String transactionId) throws AccessDeniedException;
+    void handleStripeWebHook(String payload, String signatureHeader);
+    PaymentDTO cancelPayment(String transactionId) throws AccessDeniedException;
 
 }

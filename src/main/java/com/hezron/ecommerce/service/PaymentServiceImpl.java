@@ -155,6 +155,55 @@ public class PaymentServiceImpl implements PaymentService {
         return mapToDTO(payment);
     }
 
+    @Override
+    public void handleStripeWebHook(String payload, String signatureHeader) {
+
+    }
+
+    @Override
+    @Transactional
+    public PaymentDTO cancelPayment(String transactionId) throws AccessDeniedException {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        //Get payment
+        Payment payment = paymentRepository.findByTransactionId(transactionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Payment not found with transaction ID: " + transactionId));
+        // Ensure the payment belongs to the current user
+        if (!payment.getOrder().getUser().getEmail().equals(username)) {
+            throw new AccessDeniedException("You don't have permission to cancel this payment");
+        }
+
+        // Check if payment can be canceled (only pending payments can be canceled)
+        if (!"PENDING".equals(payment.getStatus())) {
+            throw new PaymentProcessingException("Payment cannot be canceled because it's already " + payment.getStatus());
+        }
+
+        try {
+            // Cancel the payment intent in Stripe
+            PaymentIntent canceledIntent = stripeService.cancelPaymentIntent(payment.getTransactionId());
+
+            // Update payment status
+            payment.setStatus("CANCELED");
+            payment.setGatewayResponse(canceledIntent.toJson());
+            payment.setUpdatedAt(LocalDateTime.now());
+            Payment updatedPayment = paymentRepository.save(payment);
+
+            // Update order status
+            Order order = payment.getOrder();
+            order.setStatus("PAYMENT_CANCELED");
+            order.setUpdatedAt(LocalDateTime.now());
+            orderRepository.save(order);
+
+            log.info("Payment {} canceled successfully", transactionId);
+
+            return mapToDTO(updatedPayment);
+        } catch (StripeException e) {
+            log.error("Error canceling payment in Stripe", e);
+            throw new PaymentProcessingException("Failed to cancel payment: " + e.getMessage());
+        }
+
+    }
+
     // Complete Webhook handler to process stripe events
     @Transactional
     public void handleStripeWebhook(String payload, String signatureHeader) {
