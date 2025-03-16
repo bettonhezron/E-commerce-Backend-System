@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -72,5 +71,23 @@ public class PaymentController {
         log.info("Received Stripe Webhook");
         paymentService.handleStripeWebHook(payload, signatureHeader);
         return ResponseEntity.ok("Webhook processed successfully");
+    }
+
+    //Cancel transaction
+    @PostMapping("/cancel/{transactionId}")
+    @Operation(summary = "Cancel pending payment")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Payment canceled succesffully!"),
+            @ApiResponse(responseCode = "403", description = "Not authorized"),
+            @ApiResponse(responseCode = "404", description = "Payment not found"),
+            @ApiResponse(responseCode = "400", description = "Payment cannot be canceled")
+    })
+
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<PaymentDTO> cancelPayment(
+            @Parameter(description = "Transaction ID", required = true)
+            @PathVariable String transactionId) throws AccessDeniedException {
+        log.info("Cancel payment with transaction ID: {}", transactionId);
+        return ResponseEntity.ok(paymentService.cancelPayment(transactionId));
     }
 }
