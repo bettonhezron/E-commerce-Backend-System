@@ -43,7 +43,7 @@ public class PaymentController {
         return new ResponseEntity<>(paymentService.processPayment(paymentRequest), HttpStatus.CREATED);
     }
 
-
+//payment details by order ID
     @GetMapping("/order/{orderId}")
     @Operation(summary = "Get payment details by oder ID")
     @ApiResponses(value = {
@@ -57,5 +57,20 @@ public class PaymentController {
             @PathVariable String transactionId) throws AccessDeniedException {
         log.info("Retrieving payment for transaction ID: {}", transactionId);
         return ResponseEntity.ok(paymentService.getPaymentByTransactionId(transactionId));
+    }
+
+    //Webhooks
+    @PostMapping("/webhooks")
+    @Operation(summary = "Handle stripe webhook events")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Webhook processed successfully"),
+            @ApiResponse(responseCode = "403", description = "Invalid webhook payload or signature")
+    })
+    public ResponseEntity<String> handleStripeWebhook(
+            @RequestBody String payload,
+            @RequestHeader("Stripe-Signature") String signatureHeader) {
+        log.info("Received Stripe Webhook");
+        paymentService.handleStripeWebHook(payload, signatureHeader);
+        return ResponseEntity.ok("Webhook processed successfully");
     }
 }
