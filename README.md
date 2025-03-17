@@ -77,7 +77,7 @@ The system uses the following core entities:
 - An **Order** contains multiple **OrderItems**
 - A **Cart** contains multiple **CartItems**
 
-   ![ER Diagram](image_url_or_path.png)
+   ![ER Diagram](docs/schema.png)
 
 ## Getting Started
 
@@ -134,7 +134,7 @@ Once the application is running, you can access the API documentation at:
 ## Current Implementation Status
 
 ✅ Entity models defined  
-✅ DTO impementaion
+✅ DTO implementation
 ✅ Repository layer implemented  
 ✅ Service layer implementation  
 ✅Controller implementations  

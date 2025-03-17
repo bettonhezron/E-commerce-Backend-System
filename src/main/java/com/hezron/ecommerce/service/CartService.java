@@ -1,6 +1,7 @@
 package com.hezron.ecommerce.service;
 
 import com.hezron.ecommerce.dto.CartDTO;
+import com.hezron.ecommerce.model.User;
 
 
 public interface CartService {
@@ -14,6 +15,8 @@ public interface CartService {
     CartDTO removeFromCart(Long itemId);
 
     void clearCart();
+
+    void mergeGuestCartWithUserCart(String sessionId, User user);
 
 
 

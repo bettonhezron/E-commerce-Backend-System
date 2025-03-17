@@ -6,6 +6,7 @@ import com.hezron.ecommerce.dto.PaymentResponseDTO;
 import com.hezron.ecommerce.exception.PaymentProcessingException;
 import com.hezron.ecommerce.exception.ResourceNotFoundException;
 import com.hezron.ecommerce.model.Order;
+import com.hezron.ecommerce.model.OrderStatus;
 import com.hezron.ecommerce.model.Payment;
 import com.hezron.ecommerce.repository.OrderRepository;
 import com.hezron.ecommerce.repository.PaymentRepository;
@@ -86,7 +87,7 @@ public class PaymentServiceImpl implements PaymentService {
             );
 
             // Update order status
-            order.setStatus("PAYMENT_PROCESSING");
+            order.setStatus(OrderStatus.PAYMENT_PROCESSING);
             orderRepository.save(order);
 
             // Create payment record
@@ -190,7 +191,7 @@ public class PaymentServiceImpl implements PaymentService {
 
             // Update order status
             Order order = payment.getOrder();
-            order.setStatus("PAYMENT_CANCELED");
+            order.setStatus(OrderStatus.PAYMENT_CANCELED);
             order.setUpdatedAt(LocalDateTime.now());
             orderRepository.save(order);
 
@@ -263,7 +264,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         // Update the order status
         Order order = payment.getOrder();
-        order.setStatus("PAID");
+        order.setStatus(OrderStatus.PAID);
         orderRepository.save(order);
 
         log.info("Payment completed successfully for order: {}", order.getId());
@@ -285,7 +286,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         // Update the order status
         Order order = payment.getOrder();
-        order.setStatus("PAYMENT_FAILED");
+        order.setStatus(OrderStatus.PAYMENT_FAILED);
         orderRepository.save(order);
 
         log.error("Payment failed for order: {}", order.getId());
@@ -307,7 +308,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         // Update the order status
         Order order = payment.getOrder();
-        order.setStatus("PAYMENT_CANCELED");
+        order.setStatus(OrderStatus.PAYMENT_CANCELED);
         orderRepository.save(order);
 
         log.info("Payment canceled for order: {}", order.getId());

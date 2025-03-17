@@ -95,6 +95,7 @@ public class CartServiceImpl implements CartService {
             newItem.setProduct(product);
             newItem.setQuantity(quantity);
             newItem.setUnitPrice(product.getPrice());
+            newItem.setTotalPrice(product.getPrice().multiply(new BigDecimal(quantity)));
 
             cart.getItems().add(newItem);
             cartItemRepository.save(newItem);
@@ -132,6 +133,9 @@ public class CartServiceImpl implements CartService {
         
         // Update quantity
         cartItem.setQuantity(quantity);
+
+        //update total price
+        cartItem.setTotalPrice(cartItem.getUnitPrice().multiply(new BigDecimal(quantity)));
         cartItemRepository.save(cartItem);
         
         // Update cart totals
@@ -269,6 +273,66 @@ public class CartServiceImpl implements CartService {
                 .total(cart.getTotalAmount())
                 .itemCount(cart.getItems().size())
                 .build();
+    }
+
+    @Transactional
+    public void mergeGuestCartWithUserCart(String sessionId, User user) {
+        // Find guest cart by session ID
+        Optional<Cart> guestCartOpt = cartRepository.findBySessionId(sessionId);
+
+        if (guestCartOpt.isEmpty() || guestCartOpt.get().getItems().isEmpty()) {
+            // No guest cart or empty cart, nothing to merge
+            return;
+        }
+
+        Cart guestCart = guestCartOpt.get();
+
+        // Find or create user cart
+        Cart userCart = cartRepository.findByUser(user)
+                .orElseGet(() -> {
+                    Cart newCart = new Cart();
+                    newCart.setUser(user);
+                    newCart.setItems(new ArrayList<>());
+                    newCart.setSubtotal(BigDecimal.ZERO);
+                    newCart.setTax(BigDecimal.ZERO);
+                    newCart.setShippingCost(BigDecimal.ZERO);
+                    newCart.setTotalAmount(BigDecimal.ZERO);
+                    return cartRepository.save(newCart);
+                });
+
+        // Move items from guest cart to user cart
+        for (CartItem item : new ArrayList<>(guestCart.getItems())) {
+            // Check if product already exists in user cart
+            Optional<CartItem> existingItemOpt = userCart.getItems().stream()
+                    .filter(userItem -> userItem.getProduct().getId().equals(item.getProduct().getId()))
+                    .findFirst();
+
+            if (existingItemOpt.isPresent()) {
+                // Update quantity of existing item
+                CartItem existingItem = existingItemOpt.get();
+                existingItem.setQuantity(existingItem.getQuantity() + item.getQuantity());
+                existingItem.setTotalPrice(existingItem.getUnitPrice()
+                        .multiply(new BigDecimal(existingItem.getQuantity())));
+                cartItemRepository.save(existingItem);
+
+                // Remove the item from guest cart
+                guestCart.getItems().remove(item);
+                cartItemRepository.delete(item);
+            } else {
+                // Move item to user cart
+                item.setCart(userCart);
+                userCart.getItems().add(item);
+            }
+        }
+
+        // Update cart totals
+        updateCartTotals(userCart);
+
+        // Save changes
+        cartRepository.save(userCart);
+
+        // Delete guest cart
+        cartRepository.delete(guestCart);
     }
     
     /**

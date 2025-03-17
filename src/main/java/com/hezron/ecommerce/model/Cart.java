@@ -1,12 +1,14 @@
 package com.hezron.ecommerce.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -30,9 +32,10 @@ public class Cart {
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL,orphanRemoval = true)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private List<CartItem> items;
+    private List<CartItem> items = new ArrayList<>();
 
     @Column(name = "subtotal", precision = 10, scale = 2, nullable = false)
+    @DecimalMin("0.00")
     private BigDecimal subtotal;
 
     @Column(name = "tax", precision = 10, scale = 2, nullable = false)
@@ -41,7 +44,7 @@ public class Cart {
     @Column(name = "shipping_cost", precision = 10, scale = 2, nullable = false)
     private BigDecimal shippingCost;
 
-    @Column(name = "totalAmount", precision = 10, scale = 2, nullable = false)
+    @Column(name = "total_amount", precision = 10, scale = 2, nullable = false)
     private BigDecimal totalAmount;
 
     @Column(nullable = false, updatable = false)

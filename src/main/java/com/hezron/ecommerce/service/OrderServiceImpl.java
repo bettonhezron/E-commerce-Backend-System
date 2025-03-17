@@ -5,10 +5,7 @@ import com.hezron.ecommerce.dto.OrderDTO;
 import com.hezron.ecommerce.dto.OrderItemDTO;
 import com.hezron.ecommerce.dto.OrderRequestDTO;
 import com.hezron.ecommerce.exception.ResourceNotFoundException;
-import com.hezron.ecommerce.model.Order;
-import com.hezron.ecommerce.model.OrderItem;
-import com.hezron.ecommerce.model.Product;
-import com.hezron.ecommerce.model.User;
+import com.hezron.ecommerce.model.*;
 import com.hezron.ecommerce.repository.OrderRepository;
 import com.hezron.ecommerce.repository.ProductRepository;
 import com.hezron.ecommerce.repository.UserRepository;
@@ -43,16 +40,6 @@ public class OrderServiceImpl implements OrderService {
             "card", "paypal", "apple_pay", "google_pay", "bank_transfer"
     );
 
-    // Order status constants
-    public static final String STATUS_PENDING = "PENDING";
-    public static final String STATUS_PAYMENT_PROCESSING = "PAYMENT_PROCESSING";
-    public static final String STATUS_PAID = "PAID";
-    public static final String STATUS_PAYMENT_FAILED = "PAYMENT_FAILED";
-    public static final String STATUS_PAYMENT_CANCELED = "PAYMENT_CANCELED";
-    public static final String STATUS_SHIPPED = "SHIPPED";
-    public static final String STATUS_DELIVERED = "DELIVERED";
-    public static final String STATUS_CANCELED = "CANCELED";
-
     @Override
     @Transactional
     public OrderDTO placeOrder(OrderRequestDTO orderRequest) {
@@ -83,7 +70,7 @@ public class OrderServiceImpl implements OrderService {
         order.setUser(user);
         order.setOrderNumber(generateOrderNumber());
         order.setOrderDate(LocalDateTime.now());
-        order.setStatus(STATUS_PENDING);
+        order.setStatus(OrderStatus.PENDING);
         order.setShippingAddress(orderRequest.getShippingAddress());
         order.setBillingAddress(orderRequest.getBillingAddress());
         order.setPaymentMethod(orderRequest.getPaymentMethod());
@@ -181,18 +168,28 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + orderId));
 
-        order.setStatus(status);
-        order.setUpdatedAt(LocalDateTime.now());
+        try {
+            // Convert the string status to an enum
+            OrderStatus newStatus = OrderStatus.valueOf(status.toUpperCase());
+            order.setStatus(newStatus);
 
-        if (STATUS_SHIPPED.equals(status) && order.getTrackingNumber() == null) {
-            order.setTrackingNumber(generateTrackingNumber());
+            // If order is being shipped and no tracking number exists, generate one
+            if (newStatus == OrderStatus.SHIPPED && order.getTrackingNumber() == null) {
+                order.setTrackingNumber(generateTrackingNumber());
+            }
+
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid order status: " + status);
         }
 
+        order.setUpdatedAt(LocalDateTime.now());
         Order updatedOrder = orderRepository.save(order);
-        log.info("Order status updated to {} for order {}", status, orderId);
+
+        log.info("Order ID {} status updated to {}", orderId, order.getStatus().name());
 
         return convertToDTO(updatedOrder);
     }
+
 
     // Helper methods
     private String generateOrderNumber() {
@@ -209,17 +206,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private BigDecimal calculateShippingCost(List<OrderItem> items) {
-        // Simple shipping cost calculation based on item count
         int totalItems = items.stream().mapToInt(OrderItem::getQuantity).sum();
+        BigDecimal baseRate = new BigDecimal("4.99");
+        BigDecimal perItemRate = new BigDecimal("1.50");
 
-        if (totalItems <= 2) {
-            return new BigDecimal("5.99");
-        } else if (totalItems <= 5) {
-            return new BigDecimal("8.99");
-        } else {
-            return new BigDecimal("12.99");
-        }
+        return baseRate.add(perItemRate.multiply(BigDecimal.valueOf(totalItems)));
     }
+
 
     // Validate payment method - should match the one in PaymentServiceImpl
     private void validatePaymentMethod(String paymentMethod) {
@@ -244,7 +237,7 @@ public class OrderServiceImpl implements OrderService {
                 .id(order.getId())
                 .orderNumber(order.getOrderNumber())
                 .orderDate(order.getOrderDate())
-                .status(order.getStatus())
+                .status(order.getStatus().name())
                 .subtotal(order.getSubtotal())
                 .tax(order.getTax())
                 .shippingCost(order.getShippingCost())
