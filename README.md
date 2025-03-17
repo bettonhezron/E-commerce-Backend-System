@@ -77,7 +77,7 @@ The system uses the following core entities:
 - An **Order** contains multiple **OrderItems**
 - A **Cart** contains multiple **CartItems**
 
-   ![ER Diagram](docs/schema.png)
+   ![ER Diagram] (docs/schema.png)
 
 ## Getting Started
 
