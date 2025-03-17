@@ -67,6 +67,8 @@ The system uses the following core entities:
 - **Orders, OrderItems & order status**
 - **Cart & CartItems**
 
+ ![Database Schema](image_url_or_path.png)
+
 ### Entity Relationships
 
 - A **User** can have multiple **Addresses**
