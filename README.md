@@ -67,7 +67,6 @@ The system uses the following core entities:
 - **Orders, OrderItems & order status**
 - **Cart & CartItems**
 
- ![Database Schema](image_url_or_path.png)
 
 ### Entity Relationships
 
@@ -77,6 +76,8 @@ The system uses the following core entities:
 - A **Product** belongs to one **Category**
 - An **Order** contains multiple **OrderItems**
 - A **Cart** contains multiple **CartItems**
+
+   ![ER Diagram](image_url_or_path.png)
 
 ## Getting Started
 
