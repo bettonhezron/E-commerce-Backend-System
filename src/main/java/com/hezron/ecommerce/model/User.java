@@ -2,7 +2,10 @@ package com.hezron.ecommerce.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 
 import java.time.LocalDateTime;
@@ -29,30 +32,26 @@ public class User {
 
     private String firstName;
     private String lastName;
+
+    @Pattern(regexp = "^\\+?[0-9]{10,15}$", message = "Invalid phone number format")
     private String phoneNumber;
 
     @Enumerated(EnumType.STRING)
-    private Role role;
+    private Role role = Role.CUSTOMER;
 
     private boolean enabled = true;
 
-    @OneToMany( mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany( mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Set<Address> addresses;
 
+    @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @UpdateTimestamp
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    @PrePersist
-    protected void onCreate(){
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
 
-    @PreUpdate
-    protected void onUpdate(){
-        updatedAt = LocalDateTime.now();
-    }
+
 }
