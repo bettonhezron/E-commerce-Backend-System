@@ -12,20 +12,23 @@ public class AdminInitializer implements CommandLineRunner {
 
     private final UserService userService;
     
-    @Value("${admin.email:admin@ecommerce.com}")
+    @Value("${ADMIN_EMAIL:admin@ecommerce.com}")
     private String adminEmail;
     
-    @Value("${admin.password:Admin@123}")
+    @Value("${ADMIN_EMAIL:Admin@123}")
     private String adminPassword;
     
-    @Value("${admin.firstName:Admin}")
+    @Value("${ADMIN_FIRSTNAME:Admin}")
     private String adminFirstName;
     
-    @Value("${admin.lastName:User}")
+    @Value("${ADMIN_FIRSTNAME:User}")
     private String adminLastName;
     
-    @Value("${admin.phoneNumber:+1234567890}")
+    @Value("${ADMIN_PHONENUMBER:+1234567890}")
     private String adminPhoneNumber;
+
+    @Value("${ADMIN_KEY:y2BcE8fL9pQ7rT3sX5vZ1mD4nG6hJ8kA}")
+    private String adminKey;
 
     @Override
     public void run(String... args) {
