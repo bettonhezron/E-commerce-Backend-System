@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -83,6 +84,14 @@ public class AuthController {
                 .build());
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<UserDTO> getMe(Authentication authentication) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        UserDTO userDTO = userService.getUserByEmail(userDetails.getUsername());
+        return ResponseEntity.ok(userDTO);
+    }
+
+
     private UserDetails convertToUserDetails(UserDTO userDTO) {
         return org.springframework.security.core.userdetails.User.builder()
                 .username(userDTO.getEmail())
@@ -90,8 +99,5 @@ public class AuthController {
                 .authorities(new SimpleGrantedAuthority("ROLE_" + userDTO.getRole().name()))
                 .build();
     }
-    @GetMapping("/me")
-    public ResponseEntity<String> getMe() {
-        return ResponseEntity.ok("User info retrieved successfully!");
-    }
+
 }
