@@ -1,10 +1,7 @@
 package com.hezron.ecommerce.controller;
 
 import com.hezron.ecommerce.config.JwtService;
-import com.hezron.ecommerce.dto.AuthResponse;
-import com.hezron.ecommerce.dto.LoginDTO;
-import com.hezron.ecommerce.dto.UserDTO;
-import com.hezron.ecommerce.dto.UserRegistrationDTO;
+import com.hezron.ecommerce.dto.*;
 import com.hezron.ecommerce.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -57,10 +54,10 @@ public class AuthController {
     })
     @PostMapping("/register/admin")
     public ResponseEntity<AuthResponse> registerAdmin(
-            @Valid @RequestBody UserRegistrationDTO registrationDTO,
+            @Valid @RequestBody AdminRegistrationDTO adminDTO,
             @RequestParam String adminKey) {
 
-        UserDTO userDTO = userService.registerAdminUser(registrationDTO, adminKey);
+        UserDTO userDTO = userService.registerAdminUser(adminDTO.getRegistrationDTO(), adminDTO.getAdminKey());
         String token = jwtService.generateToken(convertToUserDetails(userDTO));
 
         return ResponseEntity.ok(AuthResponse.builder()
