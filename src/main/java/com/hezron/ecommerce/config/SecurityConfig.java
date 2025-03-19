@@ -61,7 +61,6 @@ public class SecurityConfig {
 
                         // Customer-specific endpoints that require authentication
                         .requestMatchers(
-                                "/api/cart/**",
                                 "/api/orders/**",
                                 "/api/recommendations/**",
                                 "/api/user/**"

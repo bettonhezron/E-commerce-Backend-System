@@ -2,11 +2,16 @@ package com.hezron.ecommerce.controller;
 
 import com.hezron.ecommerce.config.JwtService;
 import com.hezron.ecommerce.dto.*;
+import com.hezron.ecommerce.exception.ResourceNotFoundException;
+import com.hezron.ecommerce.model.User;
+import com.hezron.ecommerce.repository.UserRepository;
+import com.hezron.ecommerce.service.CartService;
 import com.hezron.ecommerce.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +31,8 @@ public class AuthController {
     private final UserService userService;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final CartService cartService;
+    private final UserRepository userRepository;
 
     @Operation(summary = "Register a new customer user")
     @ApiResponses(value = {
@@ -68,11 +75,29 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> loginUser(@Valid @RequestBody LoginDTO loginDTO) {
+    public ResponseEntity<AuthResponse> loginUser(@Valid @RequestBody LoginDTO loginDTO, HttpServletRequest request) {
+
+        // Store the guest session ID before authentication
+        String guestSessionId = userService.getGuestSessionId();
+
+       //authenticate
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginDTO.getEmail(), loginDTO.getPassword()));
 
+        //Get user details
         UserDTO userDTO = userService.authenticateUser(loginDTO);
+
+        // Get current session ID
+        String sessionId = request.getSession().getId();
+
+        // Get the User entity for cart merging
+        User user = userRepository.findByEmail(loginDTO.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        // Merge guest cart with user cart
+        cartService.mergeGuestCartWithUserCart(guestSessionId, user);
+
+        //Generate token
         String token = jwtService.generateToken(convertToUserDetails(userDTO));
 
         return ResponseEntity.ok(AuthResponse.builder()

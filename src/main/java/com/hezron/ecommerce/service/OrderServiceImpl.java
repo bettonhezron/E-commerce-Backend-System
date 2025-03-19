@@ -6,6 +6,7 @@ import com.hezron.ecommerce.dto.OrderItemDTO;
 import com.hezron.ecommerce.dto.OrderRequestDTO;
 import com.hezron.ecommerce.exception.ResourceNotFoundException;
 import com.hezron.ecommerce.model.*;
+import com.hezron.ecommerce.repository.CartRepository;
 import com.hezron.ecommerce.repository.OrderRepository;
 import com.hezron.ecommerce.repository.ProductRepository;
 import com.hezron.ecommerce.repository.UserRepository;
@@ -19,10 +20,7 @@ import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,6 +32,8 @@ public class OrderServiceImpl implements OrderService {
     private final CartService cartService;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
+    private final CartRepository cartRepository;
+    private final UserService userService;
 
     // List of supported payment methods - should match those in PaymentServiceImpl
     private static final List<String> SUPPORTED_PAYMENT_METHODS = Arrays.asList(
@@ -61,6 +61,27 @@ public class OrderServiceImpl implements OrderService {
         // Get the current cart
         CartDTO cartDTO = cartService.getCurrentCart();
 
+
+
+        // If user's cart is empty, check if there's a guest cart with items
+        if (cartDTO.getItems().isEmpty()) {
+
+            String guestSessionId = userService.getGuestSessionId();
+            Optional<Cart> guestCartOpt = cartRepository.findBySessionId(guestSessionId);
+
+            if (guestCartOpt.isPresent() && !guestCartOpt.get().getItems().isEmpty()) {
+                // We found items in the guest cart, let's merge them with the user's cart
+                cartService.mergeGuestCartWithUserCart(guestSessionId, user);
+
+                // Now get the updated cart with merged items
+                cartDTO = cartService.getCurrentCart();
+            }
+        }
+
+        log.info("Cart for user {}: {}", username, cartDTO);
+
+
+        // Final check - if still empty after trying to merge, throw the error
         if (cartDTO.getItems().isEmpty()) {
             throw new IllegalStateException("Cannot place an order with an empty cart");
         }
