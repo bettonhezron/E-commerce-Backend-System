@@ -7,4 +7,6 @@ FROM openjdk:21-slim
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
-CMD ["java", "-jar", "app.jar"]
+
+# Debugging: List files before running the app
+CMD ls -l /app && java -Dserver.port=$PORT -jar app.jar
