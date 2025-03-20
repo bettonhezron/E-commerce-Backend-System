@@ -4,5 +4,5 @@ buildCommand = "./mvnw clean package -DskipTests"
 
 [deploy]
 startCommand = "java -Dserver.port=$PORT -jar target/*.jar"
-healthcheckPath = "/actuator/health"
-healthcheckTimeout = 300
+# healthcheckPath = "/actuator/health"
+# healthcheckTimeout = 300
