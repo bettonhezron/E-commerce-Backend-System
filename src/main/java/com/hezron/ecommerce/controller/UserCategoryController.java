@@ -1,7 +1,7 @@
 package com.hezron.ecommerce.controller;
 
 import com.hezron.ecommerce.dto.ApiResponseDTO;
-import com.hezron.ecommerce.dto.CategoryDTO;
+import com.hezron.ecommerce.dto.CategoryResponseDTO;
 import com.hezron.ecommerce.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,31 +24,34 @@ public class UserCategoryController {
 
     @GetMapping
     @Operation(summary = "Get all active categories")
-    public ResponseEntity<ApiResponseDTO<List<CategoryDTO>>> getActiveCategories() {
-        List<CategoryDTO> categories = categoryService.getActiveCategories();
+    public ResponseEntity<ApiResponseDTO<List<CategoryResponseDTO>>> getActiveCategories() {
+        List<CategoryResponseDTO> categories = categoryService.getActiveCategories();
         return ResponseEntity.ok(new ApiResponseDTO<>(
-            "Active categories retrieved successfully", 
-            categories
+                true,
+                "Active categories retrieved successfully",
+                categories
         ));
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Get category by ID")
-    public ResponseEntity<ApiResponseDTO<CategoryDTO>> getCategoryById(@PathVariable Long id) {
-        CategoryDTO category = categoryService.getCategoryById(id);
+    public ResponseEntity<ApiResponseDTO<CategoryResponseDTO>> getCategoryById(@PathVariable Long id) {
+        CategoryResponseDTO category = categoryService.getCategoryById(id);
         return ResponseEntity.ok(new ApiResponseDTO<>(
-            "Category retrieved successfully", 
-            category
+                true,
+                "Category retrieved successfully",
+                category
         ));
     }
 
     @GetMapping("/tree")
     @Operation(summary = "Get category hierarchy")
-    public ResponseEntity<ApiResponseDTO<List<CategoryDTO>>> getCategoryTree() {
-        List<CategoryDTO> categoryTree = categoryService.getCategoryTree();
+    public ResponseEntity<ApiResponseDTO<List<CategoryResponseDTO>>> getCategoryTree() {
+        List<CategoryResponseDTO> categoryTree = categoryService.getCategoryTree();
         return ResponseEntity.ok(new ApiResponseDTO<>(
-            "Category hierarchy retrieved successfully", 
-            categoryTree
+                true,
+                "Category hierarchy retrieved successfully",
+                categoryTree
         ));
     }
 }

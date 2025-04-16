@@ -15,13 +15,13 @@ public class AdminInitializer implements CommandLineRunner {
     @Value("${ADMIN_EMAIL:admin@ecommerce.com}")
     private String adminEmail;
     
-    @Value("${ADMIN_EMAIL:Admin@456}")
+    @Value("${ADMIN_PASS:Admin@456}")
     private String adminPassword;
     
     @Value("${ADMIN_FIRSTNAME:Admin}")
     private String adminFirstName;
     
-    @Value("${ADMIN_FIRSTNAME:User}")
+    @Value("${ADMIN_LASTNAME:User}")
     private String adminLastName;
     
     @Value("${ADMIN_PHONENUMBER:+1234567890}")

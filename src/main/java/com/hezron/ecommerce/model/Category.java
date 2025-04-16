@@ -1,15 +1,20 @@
 package com.hezron.ecommerce.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
-import java.util.HashSet;
+import java.time.LocalDateTime;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
-@Data
+@Getter
+@Setter
+@ToString(exclude = {"parent", "subcategories"})
+@EqualsAndHashCode(exclude = {"parent", "subcategories"})
 @Entity
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "categories")
@@ -26,7 +31,7 @@ public class Category {
     private String description;
 
     @Column(nullable = false)
-    private Boolean active = true;
+    private Boolean active;
 
     @Column(unique = true, length = 100)
     private String slug;
@@ -35,17 +40,30 @@ public class Category {
     @JoinColumn(name = "parent_id")
     private Category parent;
 
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
-    private Set<Category> subcategories = new HashSet<>();
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Category> subcategories = new LinkedHashSet<>();
 
-    // Helper methods for bidirectional relationship management
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    public void prePersist() {
+        if (active == null) active = true;
+    }
+
     public void addSubcategory(Category subcategory) {
-        subcategories.add(subcategory);
-        subcategory.setParent(this);
+        if (subcategory != null && subcategories.add(subcategory)) {
+            subcategory.setParent(this);
+        }
     }
 
     public void removeSubcategory(Category subcategory) {
-        subcategories.remove(subcategory);
-        subcategory.setParent(null);
+        if (subcategory != null && subcategories.remove(subcategory)) {
+            subcategory.setParent(null);
+        }
     }
 }
