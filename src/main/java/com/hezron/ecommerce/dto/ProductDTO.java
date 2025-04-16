@@ -37,6 +37,8 @@ public class ProductDTO {
 
     private String categoryName;
 
+
+
     private List<String> imageUrls = new ArrayList<>();
 
     private boolean active;
