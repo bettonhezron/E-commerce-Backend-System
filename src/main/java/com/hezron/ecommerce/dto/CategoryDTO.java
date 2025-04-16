@@ -31,6 +31,10 @@ public class CategoryDTO {
     @Schema(description = "ID of the parent category", example = "null")
     private Long parentId;
 
+    @Schema(description = "URL-friendly version of the category name", example = "electronics")
+    @Size(max = 100, message = "Slug cannot exceed 100 characters")
+    private String slug;
+
     @Schema(description = "List of subcategories")
     private List<CategoryDTO> subcategories;
 }

@@ -15,7 +15,7 @@ public class AdminInitializer implements CommandLineRunner {
     @Value("${ADMIN_EMAIL:admin@ecommerce.com}")
     private String adminEmail;
     
-    @Value("${ADMIN_EMAIL:Admin@123}")
+    @Value("${ADMIN_EMAIL:Admin@456}")
     private String adminPassword;
     
     @Value("${ADMIN_FIRSTNAME:Admin}")

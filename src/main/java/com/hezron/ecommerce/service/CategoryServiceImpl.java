@@ -49,6 +49,11 @@ public class CategoryServiceImpl implements CategoryService {
         category.setName(dto.getName());
         category.setDescription(dto.getDescription());
         category.setActive(dto.getActive() != null ? dto.getActive() : true);
+        String slug = dto.getName().toLowerCase()
+                .replaceAll("[^a-z0-9\\s-]", "")
+                .replaceAll("\\s+", "-")
+                .replaceAll("-+", "-");
+        category.setSlug(slug);
 
         return category;
     }
