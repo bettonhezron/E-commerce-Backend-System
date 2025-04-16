@@ -13,7 +13,7 @@ import java.util.List;
 @Builder
 public class PagedResponseDTO<T> {
 
-    private List<T> content;             // List of items in the current page
+    private List<T> content;
     private int pageNumber;              // Current page number (0-based)
     private int pageSize;                // Number of items per page
     private long totalElements;          // Total number of items across all pages
@@ -64,4 +64,6 @@ public class PagedResponseDTO<T> {
                 .sortDirection(sortDirection)
                 .build();
     }
+
+
 }

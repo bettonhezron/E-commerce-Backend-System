@@ -41,6 +41,34 @@ public class AdminProductController {
 
     private final ProductService productService;
 
+    @Operation(summary = "Get all products", description = "Retrieves all products with pagination")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved products"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @ApiResponse(responseCode = "403", description = "Forbidden")
+    })
+    @GetMapping
+    public ResponseEntity<ApiResponseDTO<PagedResponseDTO<ProductDTO>>> getAllProducts(
+            @Parameter(description = "Page number (zero-based)")
+            @RequestParam(defaultValue = "0") @Min(0) int page,
+
+            @Parameter(description = "Number of items per page")
+            @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size,
+
+            @Parameter(description = "Sort field")
+            @RequestParam(defaultValue = "id") String sortBy,
+
+            @Parameter(description = "Sort direction (asc/desc)")
+            @RequestParam(defaultValue = "asc") String sortDir
+    ) {
+        log.info("Fetching all products with pagination: page={}, size={}", page, size);
+
+        PagedResponseDTO<ProductDTO> products = productService.getAllProductsPaginated(page, size, sortBy, sortDir);
+
+        log.info("Retrieved {} products (total: {})", products.getContent().size(), products.getTotalElements());
+        return ResponseEntity.ok(new ApiResponseDTO<>(true, "Products retrieved successfully", products));
+    }
+
     @Operation(summary = "Create a new product", description = "Creates a new product with the provided details")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Product created successfully",

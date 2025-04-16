@@ -147,6 +147,30 @@ public class ProductService {
 
     // ================= ADMIN-FACING METHODS =================
 
+    @Transactional(readOnly = true)
+    public PagedResponseDTO<ProductDTO> getAllProductsPaginated(int page, int size, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("desc") ?
+                Sort.by(sortBy).descending() :
+                Sort.by(sortBy).ascending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Product> productPage = productRepository.findAll(pageable);
+
+        List<ProductDTO> productDTOs = productPage.getContent().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+
+        return new PagedResponseDTO<>(
+                productDTOs,
+                productPage.getNumber(),
+                productPage.getSize(),
+                productPage.getTotalElements(),
+                productPage.getTotalPages(),
+                productPage.isLast()
+        );
+    }
+
     /**
      * Create new product (admin only)
      */
