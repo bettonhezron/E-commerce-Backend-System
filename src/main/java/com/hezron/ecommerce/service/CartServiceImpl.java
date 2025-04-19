@@ -36,22 +36,23 @@ public class CartServiceImpl implements CartService {
     private final ProductRepository productRepository;
     private final ProductService productService;
     private final UserService userService;
-    
+
     // Tax rate - could be moved to configuration
     private static final BigDecimal TAX_RATE = new BigDecimal("0.10");
-    
+
     // Free shipping threshold
     private static final BigDecimal FREE_SHIPPING_THRESHOLD = new BigDecimal("50.00");
-    
+
     // Standard shipping cost
     private static final BigDecimal STANDARD_SHIPPING_COST = new BigDecimal("5.99");
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional // Changed from readOnly=true to allow write operations
     public CartDTO getCurrentCart() {
         Cart cart = getOrCreateCart();
         return mapToCartDTO(cart);
     }
+
     @Override
     @Transactional
     public CartDTO addToCart(Long productId, Integer quantity) {
@@ -114,34 +115,34 @@ public class CartServiceImpl implements CartService {
         if (quantity <= 0) {
             throw new ValidationException("Quantity must be greater than zero");
         }
-        
+
         // Get cart item
         CartItem cartItem = cartItemRepository.findById(itemId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart item not found with ID: " + itemId));
-        
+
         // Check if item belongs to current user's cart
         Cart userCart = getOrCreateCart();
         if (!cartItem.getCart().getId().equals(userCart.getId())) {
             throw new ResourceNotFoundException("Cart item not found with ID: " + itemId);
         }
-        
+
         // Check stock availability
         Product product = cartItem.getProduct();
         if (product.getStockQuantity() < quantity) {
             throw new ValidationException("Not enough stock available. Currently available: " + product.getStockQuantity());
         }
-        
+
         // Update quantity
         cartItem.setQuantity(quantity);
 
         //update total price
         cartItem.setTotalPrice(cartItem.getUnitPrice().multiply(new BigDecimal(quantity)));
         cartItemRepository.save(cartItem);
-        
+
         // Update cart totals
         updateCartTotals(userCart);
         cartRepository.save(userCart);
-        
+
         return mapToCartDTO(userCart);
     }
 
@@ -151,21 +152,21 @@ public class CartServiceImpl implements CartService {
         // Get cart item
         CartItem cartItem = cartItemRepository.findById(itemId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart item not found with ID: " + itemId));
-        
+
         // Check if item belongs to current user's cart
         Cart userCart = getOrCreateCart();
         if (!cartItem.getCart().getId().equals(userCart.getId())) {
             throw new ResourceNotFoundException("Cart item not found with ID: " + itemId);
         }
-        
+
         // Remove item
         userCart.getItems().remove(cartItem);
         cartItemRepository.delete(cartItem);
-        
+
         // Update cart totals
         updateCartTotals(userCart);
         cartRepository.save(userCart);
-        
+
         return mapToCartDTO(userCart);
     }
 
@@ -173,23 +174,24 @@ public class CartServiceImpl implements CartService {
     @Transactional
     public void clearCart() {
         Cart cart = getOrCreateCart();
-        
+
         // Delete all items
         cartItemRepository.deleteAll(cart.getItems());
         cart.getItems().clear();
-        
+
         // Reset totals
         cart.setSubtotal(BigDecimal.ZERO);
         cart.setTax(BigDecimal.ZERO);
         cart.setShippingCost(BigDecimal.ZERO);
         cart.setTotalAmount(BigDecimal.ZERO);
-        
+
         cartRepository.save(cart);
     }
-    
+
     /**
      * Gets current user's cart or creates a new one if it doesn't exist
      */
+    @Transactional
     private Cart getOrCreateCart() {
         Optional<User> currentUser = userService.getCurrentUser();
 
@@ -229,8 +231,6 @@ public class CartServiceImpl implements CartService {
         }
     }
 
-
-
     /**
      * Updates the cart totals (subtotal, tax, shipping, total)
      */
@@ -239,24 +239,24 @@ public class CartServiceImpl implements CartService {
         BigDecimal subtotal = cart.getItems().stream()
                 .map(item -> item.getUnitPrice().multiply(new BigDecimal(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        
+
         // Set subtotal
         cart.setSubtotal(subtotal);
-        
+
         // Calculate tax
         BigDecimal tax = subtotal.multiply(TAX_RATE).setScale(2, RoundingMode.HALF_UP);
         cart.setTax(tax);
-        
+
         // Calculate shipping cost
-        BigDecimal shippingCost = subtotal.compareTo(FREE_SHIPPING_THRESHOLD) >= 0 ? 
+        BigDecimal shippingCost = subtotal.compareTo(FREE_SHIPPING_THRESHOLD) >= 0 ?
                 BigDecimal.ZERO : STANDARD_SHIPPING_COST;
         cart.setShippingCost(shippingCost);
-        
+
         // Calculate total
         BigDecimal total = subtotal.add(tax).add(shippingCost);
         cart.setTotalAmount(total);
     }
-    
+
     /**
      * Maps a Cart entity to CartDTO
      */
@@ -264,7 +264,7 @@ public class CartServiceImpl implements CartService {
         List<CartItemDTO> itemDTOs = cart.getItems().stream()
                 .map(this::mapToCartItemDTO)
                 .collect(Collectors.toList());
-        
+
         return CartDTO.builder()
                 .items(itemDTOs)
                 .subtotal(cart.getSubtotal())
@@ -334,7 +334,7 @@ public class CartServiceImpl implements CartService {
         // Delete guest cart
         cartRepository.delete(guestCart);
     }
-    
+
     /**
      * Maps a CartItem entity to CartItemDTO
      */

@@ -14,10 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * Controller for handling shopping cart operations
- * Provides endpoints for managing cart items
- */
+
 @RestController
 @RequestMapping("/api/cart")
 @RequiredArgsConstructor
